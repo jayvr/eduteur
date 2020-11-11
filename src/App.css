@@ -1,0 +1,11 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+#navigation {
+    background-color: #52525200;
+}
+NavLink {
+    text-decoration: none;
+}
