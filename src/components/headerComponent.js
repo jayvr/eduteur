@@ -23,6 +23,8 @@ import {
 } from 'reactstrap';
 import eduteur from "../images/logo.svg";
 
+import {auth} from "./firebase/firebaseConfig.js";
+
 
 const UserLogged = (props) => {
   return (
@@ -39,11 +41,15 @@ const UserLogged = (props) => {
     </Nav >
   );
 }
+
+
+
 const LoginModal = (props) => {
 
   // const onClosed = props; // will have a function that will exectute on model close
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
+  
 
   return (
     <div>
@@ -74,7 +80,7 @@ const LoginModal = (props) => {
 const UserLogin = (props) => {
   // isLogged will be true of user is logged in else it will be false
   // get the value from user authentication
-  const isLogged = true;
+  const isLogged = false;
 
   if (isLogged) {
     return (
