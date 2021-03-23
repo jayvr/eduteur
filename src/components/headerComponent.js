@@ -1,4 +1,4 @@
-import React, { Component, useState } from "react";
+import { useState } from "react";
 import {
   Collapse,
   Navbar,
@@ -21,9 +21,10 @@ import {
   Label,
   Input,
 } from 'reactstrap';
+import { Link } from "react-router-dom"
 import eduteur from "../images/logo.svg";
 
-import {auth} from "./firebase/firebaseConfig.js";
+import { auth } from "../firebase/firebaseconfig";
 
 
 const UserLogged = (props) => {
@@ -49,7 +50,7 @@ const LoginModal = (props) => {
   // const onClosed = props; // will have a function that will exectute on model close
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
-  
+
 
   return (
     <div>
@@ -103,34 +104,30 @@ const NavHeader = (props) => {
   return (
     <div>
       <Navbar color="light" light expand="md">
-        <NavbarBrand href="/">Eduteur</NavbarBrand>
+        <NavbarBrand><Link to="/">Eduteur</Link></NavbarBrand>
         <NavbarToggler onClick={toggle} />
         <Collapse isOpen={isOpen} navbar>
           <Nav className="mr-auto" navbar>
             <NavItem>
-              <NavLink href="#">Subject</NavLink>
+              <NavLink><Link to="/subject">Subject</Link></NavLink>
             </NavItem>
             <NavItem>
-              <NavLink href="#">Discuss</NavLink>
+              <NavLink><Link to="/discuss">Discuss</Link></NavLink>
             </NavItem>
           </Nav>
           <UserLogin></UserLogin>
         </Collapse>
       </Navbar>
-    </div>
+    </div >
   );
 }
 
-class Header extends Component {
-  constructor(props) {
-    super(props);
-  }
+function Header() {
 
-  render() {
-    return (
-      <NavHeader></NavHeader>
-    );
-  }
+  return (
+    <NavHeader></NavHeader>
+  );
+
 }
 
 export default Header;
