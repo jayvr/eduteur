@@ -21,7 +21,7 @@ import {
   Label,
   Input,
 } from 'reactstrap';
-import { Link } from "react-router-dom"
+import { Link } from "react-router-dom";
 import eduteur from "../images/logo.svg";
 
 import { auth } from "../firebase/firebaseconfig";
@@ -54,7 +54,7 @@ const LoginModal = (props) => {
 
   return (
     <div>
-      <Button color="primary" onClick={toggle}>Login</Button>
+      <Button style={{ backgroundColor: "blueviolet", color: "white" }} onClick={toggle}>Login</Button>
       <Modal isOpen={modal} toggle={toggle} className="Login">
         <ModalHeader toggle={toggle}>Login</ModalHeader>
         <ModalBody>
@@ -70,8 +70,8 @@ const LoginModal = (props) => {
           </Form>
         </ModalBody>
         <ModalFooter>
-          <Button color="primary" onClick={toggle} id="login">login</Button>{' '}
-          <Button color="secondary" onClick={toggle}>Cancel</Button>
+          <Button style={{ backgroundColor: "blueviolet", color: "white" }} onClick={toggle} id="login">login</Button>{' '}
+          <Button style={{ backgroundColor: "grey", color: "white" }} onClick={toggle}>Cancel</Button>
         </ModalFooter>
       </Modal>
     </div>
@@ -95,37 +95,27 @@ const UserLogin = (props) => {
   }
 }
 
-
-const NavHeader = (props) => {
+function Header() {
 
   const [isOpen, setIsOpen] = useState(false);
   const toggle = () => setIsOpen(!isOpen);
 
   return (
-    <div>
-      <Navbar color="light" light expand="md">
-        <NavbarBrand><Link to="/">Eduteur</Link></NavbarBrand>
-        <NavbarToggler onClick={toggle} />
-        <Collapse isOpen={isOpen} navbar>
-          <Nav className="mr-auto" navbar>
-            <NavItem>
-              <NavLink><Link to="/subject">Subject</Link></NavLink>
-            </NavItem>
-            <NavItem>
-              <NavLink><Link to="/discuss">Discuss</Link></NavLink>
-            </NavItem>
-          </Nav>
-          <UserLogin></UserLogin>
-        </Collapse>
-      </Navbar>
-    </div >
-  );
-}
-
-function Header() {
-
-  return (
-    <NavHeader></NavHeader>
+    <Navbar color="light" light expand="md">
+      <NavbarBrand><Link style={{ color: "blueviolet", fontSize: "1.5em", textDecoration: "none" }} to="/">Eduteur</Link></NavbarBrand>
+      <NavbarToggler onClick={toggle} />
+      <Collapse isOpen={isOpen} navbar>
+        <Nav className="mr-auto" navbar>
+          <NavItem>
+            <NavLink><Link to="/subject" style={{ color: "blueviolet" }}>Subject</Link></NavLink>
+          </NavItem>
+          <NavItem>
+            <NavLink><Link to="/discuss" style={{ color: "blueviolet" }}>Discuss</Link></NavLink>
+          </NavItem>
+        </Nav>
+        <UserLogin></UserLogin>
+      </Collapse>
+    </Navbar>
   );
 
 }
