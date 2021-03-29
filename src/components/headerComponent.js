@@ -22,9 +22,10 @@ import {
   Input,
 } from 'reactstrap';
 import { Link } from "react-router-dom";
+import { connect } from "react-redux";
+import { logIn } from "../redux/actioncreators/authActions";
 import eduteur from "../images/logo.svg";
 
-import { auth } from "../firebase/firebaseconfig";
 
 
 const UserLogged = (props) => {
@@ -50,27 +51,52 @@ const LoginModal = (props) => {
   // const onClosed = props; // will have a function that will exectute on model close
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
+  const [email, setEmail] = useState(null);
+  const [password, setPass] = useState(null);
 
+  const handleEmailChange = (e) => {
+    console.log("Change of field")
+    // console.log(e.target.value);
+    setEmail({
+      email : e.target.value
+    })
+  }
+  const handlePasswordChange = (e) => {
+    console.log("Change of field")
+    setPass({
+      password : e.target.value
+    })
+  }
+
+  const  handleSubmit = (e) => {
+    e.preventDefault();
+    const mail = email.email;
+    const pass = password.password;
+    console.log({mail, pass});
+    props.logIn({mail, pass})
+    toggle()
+    // console.log(state);
+  }
 
   return (
-    <div>
-      <Button style={{ backgroundColor: "blueviolet", color: "white" }} onClick={toggle}>Login</Button>
+    <div style={{marginLeft: "auto", marginRight: 0}}>
+      <Button style={{ backgroundColor: "blueviolet", color: "white"}} onClick={toggle}>Login</Button>
       <Modal isOpen={modal} toggle={toggle} className="Login">
         <ModalHeader toggle={toggle}>Login</ModalHeader>
         <ModalBody>
-          <Form>
+          <Form onSubmit={handleSubmit}>
             <FormGroup>
               <Label for="login-email">Email</Label>
-              <Input type="email" name="email" id="login-email" placeholder="john.doe@xyz.com" />
+              <Input type="email" name="email" id="email" placeholder="john.doe@xyz.com" onChange={handleEmailChange} />
             </FormGroup>
             <FormGroup>
               <Label for="login-password">Password</Label>
-              <Input type="password" name="password" id="login-password" placeholder="*********" />
+              <Input type="password" name="password" id="password" placeholder="*********" onChange={handlePasswordChange} />
             </FormGroup>
           </Form>
         </ModalBody>
         <ModalFooter>
-          <Button style={{ backgroundColor: "blueviolet", color: "white" }} onClick={toggle} id="login">login</Button>{' '}
+          <Button style={{ backgroundColor: "blueviolet", color: "white" }} onClick={handleSubmit} id="login">login</Button>{' '}
           <Button style={{ backgroundColor: "grey", color: "white" }} onClick={toggle}>Cancel</Button>
         </ModalFooter>
       </Modal>
@@ -78,33 +104,18 @@ const LoginModal = (props) => {
   );
 }
 
-const UserLogin = (props) => {
-  // isLogged will be true of user is logged in else it will be false
-  // get the value from user authentication
-  const isLogged = false;
-
-  if (isLogged) {
-    return (
-      <UserLogged></UserLogged>
-    );
-  } else {
-    return (
-      <LoginModal></LoginModal>
-
-    );
-  }
-}
-
-function Header() {
+function Header(props) {
 
   const [isOpen, setIsOpen] = useState(false);
   const toggle = () => setIsOpen(!isOpen);
-
+  // console.log(props);
   return (
     <Navbar color="light" light expand="md">
       <NavbarBrand><Link style={{ color: "blueviolet", fontSize: "1.5em", textDecoration: "none" }} to="/">Eduteur</Link></NavbarBrand>
       <NavbarToggler onClick={toggle} />
       <Collapse isOpen={isOpen} navbar>
+      {props.auth.uid ? 
+      <>
         <Nav className="mr-auto" navbar>
           <NavItem>
             <NavLink><Link to="/subject" style={{ color: "blueviolet" }}>Subject</Link></NavLink>
@@ -112,12 +123,27 @@ function Header() {
           <NavItem>
             <NavLink><Link to="/discuss" style={{ color: "blueviolet" }}>Discuss</Link></NavLink>
           </NavItem>
-        </Nav>
-        <UserLogin></UserLogin>
+        </Nav> 
+        <UserLogged></UserLogged>
+        </> : 
+        <LoginModal logIn={props.logIn}></LoginModal>}
       </Collapse>
     </Navbar>
   );
 
 }
 
-export default Header;
+const MapStateToProps = (state) => {
+  // console.log(state);
+  return {
+    authError: state.auth.authError,
+    auth: state.firebase.auth
+  }
+}
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    logIn: (creds) => dispatch(logIn(creds))
+  }
+}
+export default connect(MapStateToProps,mapDispatchToProps)(Header);
