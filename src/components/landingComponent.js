@@ -16,7 +16,7 @@ const LandingJumbotron = (props) => {
                         <hr className="my-2" />
                         <p>Sign up to get ready for experiencing the same.</p>
                         <br />
-                        <Button color="primary">Get Started</Button>
+                        <Button style={{ backgroundColor: "blueviolet", color: "white" }} >Get Started</Button>
                     </Container>
                 </Jumbotron>
             </Container>
