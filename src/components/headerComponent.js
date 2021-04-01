@@ -117,10 +117,11 @@ function Header(props) {
   return (
     <Navbar color="light" light expand="md"  >
       <NavbarBrand><Link style={{ color: "blueviolet", fontSize: "1.5em", textDecoration: "none" }} to="/">Eduteur</Link></NavbarBrand>
-      <NavbarToggler onClick={toggle} />
-      <Collapse isOpen={isOpen} navbar>
-        {props.auth.uid ?
-          <>
+
+      {props.auth.uid ?
+        <>
+          <NavbarToggler onClick={toggle} />
+          <Collapse isOpen={isOpen} navbar>
             <Nav className="mr-auto" navbar>
               <NavItem>
                 <NavLink><Link to="/subject" style={{ color: "blueviolet" }}>Subject</Link></NavLink>
@@ -130,9 +131,9 @@ function Header(props) {
               </NavItem>
             </Nav>
             <UserLogged logOut={props.logOut}></UserLogged>
-          </> :
-          <LoginModal logIn={props.logIn}></LoginModal>}
-      </Collapse>
+          </Collapse>
+        </> :
+        <LoginModal logIn={props.logIn}></LoginModal>}
     </Navbar>
   );
 

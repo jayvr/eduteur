@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem, Container, Row, ListGroup, ListGroupItem, ListGroupItemHeading, ListGroupItemText } from 'reactstrap';
+import { Container, Dropdown, DropdownItem, DropdownToggle, DropdownMenu, Form, Row, Input, FormGroup, Label, Button, CustomInput } from "reactstrap"
+
 
 const DropdownBtn = (props) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -25,25 +26,8 @@ const DropdownBtn = (props) => {
 
 }
 
-const ListTopics = (props) => {
 
-    const [topics, setTopics] = useState(props.topics);
-
-    return (
-        <ListGroup>
-            {
-                topics.map((topic) => (
-                    <ListGroupItem to="#" key={topic.id} action>
-                        <ListGroupItemHeading>{topic.title}</ListGroupItemHeading>
-                        <ListGroupItemText>{topic.desc}</ListGroupItemText>
-                    </ListGroupItem>
-                ))
-            }
-        </ListGroup>
-    )
-}
-
-function Subject() {
+function Upload(props) {
 
     const subjectItems = [
         {
@@ -109,29 +93,40 @@ function Subject() {
     ]
 
     return (
-        <div>
+        <Form>
             <Container>
-                <br />
-                <hr />
-                <Row>
-                    <div className="subject col-sm-4 col-md-1">
+                <h1>Upload/Go Live</h1>
+                <FormGroup className=" row offset-md-3">
+                    <div className="col-md-4">
                         <DropdownBtn header="Subjects" items={subjectItems} />
                     </div>
-                    <div className="module col-sm-4 offset-md-1 col-md-1">
+                    <div className="col-md-4">
                         <DropdownBtn header="Modules" items={moduleItems} />
                     </div>
-                    <div className="module col-sm-4 offset-md-1 col-md-1">
-                        <DropdownBtn header="Topic" items={topicItems} />
-                    </div>
+                </FormGroup>
+                <FormGroup className="row">
+                    <Label for="title" className="col-md-3">Title</Label>
+                    <Input className="col-md-8" type="text" name="title" id="title" placeholder="Title for the video" />
+                </FormGroup>
+                <FormGroup className="row">
+                    <Label for="desc" className="col-md-3">Description</Label>
+                    <Input className="col-md-8" type="textarea" name="desc" id="exampleText" placeholder="Add Description" />
+                </FormGroup>
+                <FormGroup className="row">
+                    <Label for="videofile" className="col-md-3" >Video File</Label>
+                    <CustomInput className="col-md-8" type="file" id="videofile" name="customFvideofileile" label="Yo, pick a file!" />
+                </FormGroup>
+                <FormGroup className="row">
+                    <Label for="addresources" className="col-md-3" >Additional Resources</Label>
+                    <CustomInput className="col-md-8" type="file" id="videofile" name="videofile" label="Yo, pick a file!" />
+                </FormGroup>
+                <Row className="offset-md-3 ">
+                    <Button style={{ backgroundColor: "green" }} className="col-md-4">Upload</Button>
+                    <Button style={{ backgroundColor: "red" }} className="offset-md-1 col-md-4">GO LIVE!</Button>
                 </Row>
-                <hr />
-                <br />
-                {/* <container>
-                    <ListTopics topics={topicItems} />
-                </container> */}
             </Container>
-        </div>
-    );
+        </Form >
+    )
 }
 
-export default Subject;
+export default Upload;

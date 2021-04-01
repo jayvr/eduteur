@@ -3,6 +3,9 @@ import {
     Container,
     Button
 } from 'reactstrap';
+import { connect } from "react-redux";
+import { Link } from 'react-router-dom';
+
 
 
 const LandingJumbotron = (props) => {
@@ -24,13 +27,46 @@ const LandingJumbotron = (props) => {
     );
 };
 
-function Landing() {
+
+const StudentLandingPage = (props) => {
     return (
-        <div>
-            <LandingJumbotron>
-            </LandingJumbotron>
-        </div>
+        <div> Student Landing Page</div>
+    );
+}
+
+const TeacherLandingPage = (props) => {
+
+    const uid = props.auth.uid;
+    console.log(props.auth)
+    return (
+        <Container>
+            <Link to="/upload"> <Button> Upload</Button></Link>
+        </Container>
+    );
+}
+
+const ShowProperLandingPage = (props) => {
+
+    return (
+        <TeacherLandingPage auth={props.auth} />
     );
 };
 
-export default Landing;
+
+function Landing(props) {
+    return (
+        <>
+            { props.auth.uid ? <ShowProperLandingPage auth={props.auth} /> : <LandingJumbotron />}
+        </>
+    );
+};
+
+const MapStateToProps = (state) => {
+    // console.log(state);
+    return {
+        auth: state.firebase.auth
+    }
+}
+
+
+export default connect(MapStateToProps)(Landing);
