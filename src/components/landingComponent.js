@@ -37,7 +37,6 @@ const StudentLandingPage = (props) => {
 const TeacherLandingPage = (props) => {
 
     const uid = props.auth.uid;
-    console.log(props.auth)
     return (
         <Container>
             <Link to="/upload"> <Button> Upload</Button></Link>
@@ -46,17 +45,32 @@ const TeacherLandingPage = (props) => {
 }
 
 const ShowProperLandingPage = (props) => {
-
-    return (
-        <TeacherLandingPage auth={props.auth} />
-    );
+    // console.log(props); good boiii :)
+    if ( props.firebase.profile.role == "faculty") {
+        return(
+            <TeacherLandingPage auth={props.firebase.auth} />
+        );
+    }
+    
+    else if ( props.firebase.profile.role == "student"){
+        return (
+            <StudentLandingPage auth={props.firebase.auth} />
+        );
+    }
+    else {
+        return(
+            <div>
+                <h1>NO PROFILE</h1>
+            </div>
+        )
+    }
 };
 
 
 function Landing(props) {
     return (
         <>
-            { props.auth.uid ? <ShowProperLandingPage auth={props.auth} /> : <LandingJumbotron />}
+            { props.firebase.auth.uid ? <ShowProperLandingPage firebase={props.firebase} /> : <LandingJumbotron />}
         </>
     );
 };
@@ -64,7 +78,8 @@ function Landing(props) {
 const MapStateToProps = (state) => {
     // console.log(state);
     return {
-        auth: state.firebase.auth
+        firebase : state.firebase
+        
     }
 }
 

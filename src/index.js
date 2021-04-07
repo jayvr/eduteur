@@ -28,7 +28,8 @@ const store = createStore(rootReducer,
 const rrfProps = {
   firebase,
   config: {
-    useFirestoreForProfile: true // Firestore for Profile instead of Realtime DB
+    useFirestoreForProfile: true, // Firestore for Profile instead of Realtime DB
+    userProfile: 'enduser'
   },
   dispatch: store.dispatch,
   createFirestoreInstance // <- needed if using firestore
@@ -52,7 +53,7 @@ ReactDOM.render(
     <ReactReduxFirebaseProvider {...rrfProps}>
       <React.StrictMode>
         <AuthIsLoaded>
-          <App />
+          <App store={store}/>
         </AuthIsLoaded>
       </React.StrictMode>
     </ReactReduxFirebaseProvider>

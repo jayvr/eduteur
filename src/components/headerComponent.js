@@ -30,6 +30,7 @@ import eduteur from "../images/logo.svg";
 
 const UserLogged = (props) => {
 
+  const username = props.profile.firstname
   const handleLogout = (e) => {
     // do logout
     props.logOut()
@@ -37,7 +38,7 @@ const UserLogged = (props) => {
   return (
     <Nav pills>
       <UncontrolledDropdown nav inNavbar>
-        <DropdownToggle nav caret style={{ color: "blueviolet" }}>User</DropdownToggle>
+        <DropdownToggle nav caret style={{ color: "blueviolet" }}>{username}</DropdownToggle>
         <DropdownMenu right>
           <DropdownItem>Stats</DropdownItem>
           <DropdownItem>Settings</DropdownItem>
@@ -130,7 +131,7 @@ function Header(props) {
                 <NavLink><Link to="/discuss" style={{ color: "blueviolet" }}>Discuss</Link></NavLink>
               </NavItem>
             </Nav>
-            <UserLogged logOut={props.logOut}></UserLogged>
+            <UserLogged logOut={props.logOut} profile={props.profile}></UserLogged>
           </Collapse>
         </> :
         <LoginModal logIn={props.logIn}></LoginModal>}
@@ -140,10 +141,10 @@ function Header(props) {
 }
 
 const MapStateToProps = (state) => {
-  // console.log(state);
   return {
     authError: state.auth.authError,
-    auth: state.firebase.auth
+    auth: state.firebase.auth,
+    profile: state.firebase.profile
   }
 }
 
