@@ -26,12 +26,15 @@ function Upload(props) {
 	const [ progress, setProgress ] = useState(0);
 	const firebase = useFirebase();
 	const firestore = getFirestore();
-
+	const [ topicPath, setTopicPath ] = useState(null);
+	const [ flag, setFlag ] = useState(Boolean(true));
 	// [{id: "1", name:"Loading...", ref:""}]
-
+	// console.log(props.data.subjects);
 	const handleSubmit = (e) => {
-		// console.log(e.target.value)
+		// console.log(e.target.value);
 		const path = e.target.value;
+		setTopicPath(path);
+		setFlag(Boolean(false));
 		firestore
 			.doc(path)
 			.get()
@@ -55,29 +58,55 @@ function Upload(props) {
 		const [ items, setItems ] = useState(props.items);
 		const [ header, setHeader ] = useState(props.header);
 		const toggle = () => setDropdownOpen((prevState) => !prevState);
-		return (
-			<Dropdown isOpen={dropdownOpen} toggle={toggle}>
-				<DropdownToggle style={{ backgroundColor: 'blueviolet', color: 'white' }} caret>
-					{header}
-				</DropdownToggle>
-				<DropdownMenu>
-					{items.map((item) => (
-						<DropdownItem key={item.id} value={item.path} onClick={handleSubmit}>
-							{item.name}
-						</DropdownItem>
-					))}
-				</DropdownMenu>
-			</Dropdown>
-		);
+		// console.log(items);
+		// console.log('Flag:' + flag);
+		if (flag == true) {
+			return (
+				<Dropdown isOpen={dropdownOpen} toggle={toggle}>
+					<DropdownToggle style={{ backgroundColor: 'blueviolet', color: 'white' }} caret>
+						{header}
+					</DropdownToggle>
+					<DropdownMenu>
+						{items.map((item) => (
+							<DropdownItem key={item.id} value={item.path} onClick={handleSubmit}>
+								{item.name}
+							</DropdownItem>
+						))}
+					</DropdownMenu>
+				</Dropdown>
+			);
+		} else if (flag == false) {
+			return (
+				<Dropdown isOpen={dropdownOpen} toggle={toggle}>
+					<DropdownToggle style={{ backgroundColor: 'blueviolet', color: 'white' }} caret>
+						{header}
+					</DropdownToggle>
+					<DropdownMenu>
+						{items.map((item) => (
+							<DropdownItem key={item.id} value={item.name} onClick={handleTopicPath}>
+								{item.name}
+							</DropdownItem>
+						))}
+					</DropdownMenu>
+				</Dropdown>
+			);
+		}
+	};
+
+	const handleTopicPath = (e) => {
+		// console.log(e.target.value);
+		const path = topicPath + '/' + e.target.value;
+		// console.log(p);
+		setTopicPath(path);
 	};
 
 	const handleVideo = (e) => {
-		console.log(e.target.files[0]);
+		// console.log(e.target.files[0]);
 		setVideo(e.target.files[0]);
 	};
 
 	const handleFile = (e) => {
-		console.log(e.target.files[0]);
+		// console.log(e.target.files[0]);
 		setFile(e.target.files[0]);
 	};
 
@@ -109,9 +138,9 @@ function Upload(props) {
 	// }
 
 	const handleUpload = () => {
-		const storageVideoRef = firebase.storage().ref(`LJ/sem1/ict/python/${video.name}`).put(video);
-        var videoURL = null;
-        var fileURL = null;
+		const storageVideoRef = firebase.storage().ref(`${topicPath}/${video.name}`).put(video);
+		var videoURL = null;
+		var fileURL = null;
 		storageVideoRef.on(
 			'state_changed',
 			(snapshot) => {
@@ -124,9 +153,9 @@ function Upload(props) {
 			() => {
 				storageVideoRef.snapshot.ref.getDownloadURL().then((url) => {
 					// setVideoUrl(url);
-                    videoURL = url;
+					videoURL = url;
 					console.log('VideoURL:' + url);
-					const storageFileRef = firebase.storage().ref(`LJ/sem1/ict/python/${file.name}`).put(file);
+					const storageFileRef = firebase.storage().ref(`${topicPath}/${file.name}`).put(file);
 					storageFileRef.on(
 						'state_changed',
 						(snapshot) => {
@@ -139,11 +168,11 @@ function Upload(props) {
 						() => {
 							storageFileRef.snapshot.ref.getDownloadURL().then((url) => {
 								// setFileUrl(url);
-                                fileURL = url;
+								fileURL = url;
 								console.log('FileURL:' + url);
 								console.log('Creating Document...');
 								firestore
-									.collection('LJ/sem1/ict/python/topics')
+									.collection(`${topicPath}`)
 									.add({
 										title: 'for loop',
 										dec: 'looping with for',
