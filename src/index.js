@@ -10,7 +10,7 @@ import thunk from 'redux-thunk';
 import { createFirestoreInstance, reduxFirestore, getFirestore } from 'redux-firestore';
 import { ReactReduxFirebaseProvider, getFirebase, isLoaded } from "react-redux-firebase";
 import firebase from "./firebase/firebaseconfig";
-import { Container, Spinner } from 'reactstrap';
+import Loading from "./components/LoadingComponent"
 
 const store = createStore(rootReducer,
   compose(
@@ -40,9 +40,7 @@ function AuthIsLoaded({ children }) {
   const auth = useSelector(state => state.firebase.auth)
   if (!isLoaded(auth)) {
     return (
-      <div className="center" >
-        <Spinner style={{ width: '5rem', height: '5rem', color: "#8A2BE2", borderWidth: ".5em" }} />
-      </div>
+      <Loading message="Authenticating..." />
     );
   }
   return children
@@ -53,7 +51,7 @@ ReactDOM.render(
     <ReactReduxFirebaseProvider {...rrfProps}>
       <React.StrictMode>
         <AuthIsLoaded>
-          <App store={store}/>
+          <App />
         </AuthIsLoaded>
       </React.StrictMode>
     </ReactReduxFirebaseProvider>

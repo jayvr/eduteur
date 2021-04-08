@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { connect, useSelector } from 'react-redux';
 import {
 	Container,
@@ -16,33 +16,61 @@ import {
 	Progress
 } from 'reactstrap';
 import { getFirestore } from 'redux-firestore';
-import { useFirebase } from 'react-redux-firebase';
+import { useFirebase, isLoaded } from 'react-redux-firebase';
+import Loading from "./LoadingComponent";
 
 function Upload(props) {
-	const [ subjectItems, setSubjectItems ] = useState(props.data.subjects);
-	const [ moduleItems, setModuleItems ] = useState([ { id: '1', name: 'please select the subject first', ref: '' } ]);
-	const [ file, setFile ] = useState(null);
-	const [ video, setVideo ] = useState(null);
-	const [ progress, setProgress ] = useState(0);
+	const [subjectItems, setSubjectItems] = useState(props.profile.subjects);
+	const [moduleItems, setModuleItems] = useState([{ id: '1', name: 'please select the subject first', ref: '' }]);
+	const [formData, setformData] = useState({
+		title: "",
+		desc: "",
+		module: "",
+		subject: "",
+		author: "",
+		sem: "",
+		branch: "",
+		uid: ""
+	})
+	const [video, setVideo] = useState(null)
+	const [file, setFile] = useState(null)
+
+
+	const [fullPath, setFullPath] = useState(null);
+	const [tempPath, setTempPath] = useState(null);
+
+
+	const [progress, setProgress] = useState(0);
+	const [dropdownOpen, setDropdownOpen] = useState(false);
+
+	const toggle = () => setDropdownOpen((prevState) => !prevState);
+
 	const firebase = useFirebase();
 	const firestore = getFirestore();
-	const [ topicPath, setTopicPath ] = useState(null);
-	const [ flag, setFlag ] = useState(Boolean(true));
-	// [{id: "1", name:"Loading...", ref:""}]
-	// console.log(props.data.subjects);
-	const handleSubmit = (e) => {
-		// console.log(e.target.value);
+
+
+
+	const handleSubject = (e) => {
+		// console.log(e.target.id);
+		const index = e.target.id;
 		const path = e.target.value;
-		setTopicPath(path);
-		setFlag(Boolean(false));
+		setTempPath(path);
+		// tempPath = e.target.value;
+		// console.log(tempPath);
+
+		setformData({
+			...formData,
+			subject: e.target.name,
+			branch: subjectItems[index].branch,
+			sem: "sem" + subjectItems[index].sem,
+		})
 		firestore
 			.doc(path)
 			.get()
 			.then((doc) => {
 				if (doc.exists) {
-					console.log(doc.data().modules);
 					setModuleItems(doc.data().modules);
-					// console.log("Document data:", moduleItems);
+					console.log(moduleItems);
 				} else {
 					// doc.data() will be undefined in this case
 					console.log('No such document!');
@@ -53,52 +81,28 @@ function Upload(props) {
 			});
 	};
 
-	const DropdownBtn = (props) => {
-		const [ dropdownOpen, setDropdownOpen ] = useState(false);
-		const [ items, setItems ] = useState(props.items);
-		const [ header, setHeader ] = useState(props.header);
-		const toggle = () => setDropdownOpen((prevState) => !prevState);
-		// console.log(items);
-		// console.log('Flag:' + flag);
-		if (flag == true) {
-			return (
-				<Dropdown isOpen={dropdownOpen} toggle={toggle}>
-					<DropdownToggle style={{ backgroundColor: 'blueviolet', color: 'white' }} caret>
-						{header}
-					</DropdownToggle>
-					<DropdownMenu>
-						{items.map((item) => (
-							<DropdownItem key={item.id} value={item.path} onClick={handleSubmit}>
-								{item.name}
-							</DropdownItem>
-						))}
-					</DropdownMenu>
-				</Dropdown>
-			);
-		} else if (flag == false) {
-			return (
-				<Dropdown isOpen={dropdownOpen} toggle={toggle}>
-					<DropdownToggle style={{ backgroundColor: 'blueviolet', color: 'white' }} caret>
-						{header}
-					</DropdownToggle>
-					<DropdownMenu>
-						{items.map((item) => (
-							<DropdownItem key={item.id} value={item.name} onClick={handleTopicPath}>
-								{item.name}
-							</DropdownItem>
-						))}
-					</DropdownMenu>
-				</Dropdown>
-			);
-		}
+	const handleTopicPath = (e) => {
+		console.log("INside handleTopicPath")
+		setformData({
+			...formData,
+			module: e.target.value
+		})
+		const path = tempPath + '/' + e.target.value + "/";
+		console.log(path);
+		setFullPath(path);
+		console.log("left handleTopicPath")
 	};
 
-	const handleTopicPath = (e) => {
-		// console.log(e.target.value);
-		const path = topicPath + '/' + e.target.value;
-		// console.log(p);
-		setTopicPath(path);
-	};
+	const handleChange = (e) => {
+		const authName = props.profile.firstname + " " + props.profile.lastname;
+		const authID = props.auth.uid;
+		setformData({
+			...formData,
+			[e.target.name]: e.target.value,
+			author: authName,
+			uid: authID
+		})
+	}
 
 	const handleVideo = (e) => {
 		// console.log(e.target.files[0]);
@@ -110,114 +114,124 @@ function Upload(props) {
 		setFile(e.target.files[0]);
 	};
 
-	// async function fileUploader(path, file){
-	//     var downURL = null;
-	//     console.log("Uploading...");
-	//     const storageRef = firebase.storage().ref(`${path}${file.name}`).put(file)
-	//     storageRef.on("state_changed",
-	//     snapshot => {
-	//         const prog = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-	//         setProgress(prog);
-	//     },
-	//     error => {
-	//         console.log(error);
-	//     },
-	//     () => {
-	//         downURL = await storageRef.snapshot.ref.getDownloadURL()
-	//         // .then(url =>{
-	//         //     console.log(url);
-	//         //     // setUrl(url);
-	//         //     // downURL = url;
-	//         //     return downURL;
-	//         //     console.log("Down URL in function:" + downURL);
-	//         // })
-	//         console.log(downURL);
-	//         console.log("upload success");
-	//         return downURL;
-	//     });
-	// }
-
-	const handleUpload = () => {
-		const storageVideoRef = firebase.storage().ref(`${topicPath}/${video.name}`).put(video);
-		var videoURL = null;
-		var fileURL = null;
-		storageVideoRef.on(
-			'state_changed',
-			(snapshot) => {
-				const prog = Math.round(snapshot.bytesTransferred / snapshot.totalBytes * 100);
-				setProgress(prog);
-			},
-			(error) => {
-				console.log(error);
-			},
-			() => {
-				storageVideoRef.snapshot.ref.getDownloadURL().then((url) => {
-					// setVideoUrl(url);
-					videoURL = url;
-					console.log('VideoURL:' + url);
-					const storageFileRef = firebase.storage().ref(`${topicPath}/${file.name}`).put(file);
-					storageFileRef.on(
-						'state_changed',
-						(snapshot) => {
-							const prog = Math.round(snapshot.bytesTransferred / snapshot.totalBytes * 100);
-							setProgress(prog);
-						},
-						(error) => {
-							console.log(error);
-						},
-						() => {
-							storageFileRef.snapshot.ref.getDownloadURL().then((url) => {
-								// setFileUrl(url);
-								fileURL = url;
-								console.log('FileURL:' + url);
-								console.log('Creating Document...');
-								firestore
-									.collection(`${topicPath}`)
-									.add({
-										title: 'for loop',
-										dec: 'looping with for',
-										branch: 'ict',
-										createdAt: new Date(),
-										module: '1',
-										moduleName: 'Array through loops',
-										sem: '1',
-										subject: 'python',
-										fileURL: fileURL,
-										videoURL: videoURL
-									})
-									.then((res) => {
-										console.log('Connected with DOC' + res);
-									})
-									.catch((error) => {
-										console.log(error);
-									});
-							});
-						}
-					);
-					console.log('upload success');
+	async function fileUploader(path, file) {
+		var downURL = null;
+		return new Promise((resolve, reject) => {
+			console.log("Uploading...");
+			const storageRef = firebase.storage().ref(`${fullPath}${file.name}`).put(file)
+			storageRef.on("state_changed",
+				snapshot => {
+					const prog = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+					setProgress(prog);
+				},
+				error => {
+					console.log(error);
+					reject(error);
+				},
+				async () => {
+					downURL = await storageRef.snapshot.ref.getDownloadURL()
+					console.log("upload success");
+					resolve(downURL);
 				});
-			}
-		);
+		});
+	}
+
+	async function handleUpload() {
+
+		var VideoURL = null;
+		var FileURL = null;
+		console.log(formData);
+		console.log(video);
+		console.log(file);
+		console.log(fullPath);
+		(async () => {
+			VideoURL = await fileUploader(fullPath, video);
+			console.log("Video URL: " + VideoURL);
+		})().then(async () => {
+			FileURL = await fileUploader(fullPath, file);
+			console.log("File URL: " + FileURL);
+		}).then(async () => {
+			console.log('Creating Document...');
+			await firestore.collection(`${fullPath}`)
+				.add({
+					title: formData.title,
+					dec: formData.desc,
+					branch: formData.branch,
+					createdAt: new Date(),
+					module: '1',
+					moduleName: formData.module,
+					sem: formData.sem,
+					subject: formData.subject,
+					author: formData.author,
+					uid: formData.uid,
+					fileURL: FileURL,
+					videoURL: VideoURL
+				})
+				.then((res) => {
+					console.log('Upadted in DOC');
+				})
+				.catch((error) => {
+					console.log(error);
+				});
+		})
 	};
 
+	// // display loding until user is profiled
+	// function ProfileIsLoaded({ children }) {
+	// 	const profile = useSelector(state => state.firebase.profile)
+	// 	if (!isLoaded(profile)) {
+	// 		return (
+	// 			<Loading message="Loading Profile..." />
+	// 		);
+	// 	}
+	// 	return children
+	// }
+
 	return (
+		// <ProfileIsLoaded>
 		<Form>
 			<Container>
 				<h1>Upload/Go Live</h1>
 				<hr />
 				<FormGroup className=" row offset-md-3">
-					<div className="col-md-4">
-						<DropdownBtn header="Subjects" items={subjectItems} />
-					</div>
-					<div className="col-md-4">
-						<DropdownBtn header="Modules" items={moduleItems} />
-					</div>
+					<Dropdown isOpen={dropdownOpen} toggle={toggle} >
+						<DropdownToggle style={{ backgroundColor: 'blueviolet', color: 'white' }} caret>
+							Subjects
+							</DropdownToggle>
+						<DropdownMenu>
+							{subjectItems.map((item, index) => (
+								<DropdownItem key={item.id} name={item.name} value={item.path} id={index} onClick={handleSubject}>
+									{item.name}
+								</DropdownItem>
+							))}
+						</DropdownMenu>
+					</Dropdown>
+				</FormGroup>
+				<FormGroup className="row">
+					<Label for="selectModule" className="col-md-3">Module</Label>
+					<CustomInput type="select" className="col-md-8" id="module" name="module" onChange={handleTopicPath}>
+						<option value="">Select the module</option>
+						{
+							moduleItems.map((item) => (
+								<option key={item.id} value={item.name} name="module">
+									{item.name}
+								</option>
+							))
+						}
+					</CustomInput>
 				</FormGroup>
 				<FormGroup className="row">
 					<Label for="title" className="col-md-3">
 						Title
 					</Label>
-					<Input className="col-md-8" type="text" name="title" id="title" placeholder="Title for the video" />
+					<Input
+						className="col-md-8"
+						type="text"
+						name="title"
+						id="title"
+						placeholder="Title for the video"
+						onChange={handleChange}
+					/>
 				</FormGroup>
 				<FormGroup className="row">
 					<Label for="desc" className="col-md-3">
@@ -229,6 +243,7 @@ function Upload(props) {
 						name="desc"
 						id="exampleText"
 						placeholder="Add Description"
+						onChange={handleChange}
 					/>
 				</FormGroup>
 				<FormGroup className="row">
@@ -239,12 +254,13 @@ function Upload(props) {
 						className="col-md-8"
 						type="file"
 						id="videofile"
-						name="customFvideofileile"
+						name="video"
 						label="Yo, pick a file!"
+						accept="video/*"
 						onChange={handleVideo}
 					/>
 				</FormGroup>
-				<FormGroup className="row">
+				<FormGroup className="row" >
 					<Label for="addresources" className="col-md-3">
 						Additional Resources
 					</Label>
@@ -252,14 +268,14 @@ function Upload(props) {
 						className="col-md-8"
 						type="file"
 						id="file"
-						name="videofile"
+						name="file"
 						label="Yo, pick a file!"
 						onChange={handleFile}
 					/>
 				</FormGroup>
 				<Row className="offset-md-3 ">
 					<Button
-						style={{ backgroundColor: 'green' }}
+						style={{ backgroundColor: "green" }}
 						className="offset-md-2 col-md-6"
 						onClick={handleUpload}
 					>
@@ -268,20 +284,22 @@ function Upload(props) {
 				</Row>
 				<hr />
 				<div>
-					<Progress animated color="info" value={progress}>
+					<Progress animated style={{ backgroundColor: "blueviolet" }} value={progress}>
 						{progress}%
 					</Progress>
 				</div>
 				<hr />
 			</Container>
 		</Form>
+		// </ProfileIsLoaded>
 	);
+
 }
 
 const MapStateToProps = (state) => {
-	// console.log(state)
+	console.log(state)
 	return {
-		data: state.firebase.profile,
+		profile: state.firebase.profile,
 		auth: state.firebase.auth,
 		firebase: state.firebase
 	};
