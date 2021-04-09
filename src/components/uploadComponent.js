@@ -30,33 +30,28 @@ function Upload(props) {
 		author: "",
 		sem: "",
 		branch: "",
-		uid: ""
+		uid: "",
+		moduleID: "",
+		isNewModule: false
+
 	})
 	const [video, setVideo] = useState(null)
 	const [file, setFile] = useState(null)
-
-
-	const [fullPath, setFullPath] = useState(null);
-	const [tempPath, setTempPath] = useState(null);
-
 
 	const [progress, setProgress] = useState(0);
 	const [dropdownOpen, setDropdownOpen] = useState(false);
 
 	const toggle = () => setDropdownOpen((prevState) => !prevState);
+	const [modToggle, setMod] = useState(false);
 
 	const firebase = useFirebase();
 	const firestore = getFirestore();
 
 
-
+	// extract the modules form the selected subject field
 	const handleSubject = (e) => {
-		// console.log(e.target.id);
 		const index = e.target.id;
 		const path = e.target.value;
-		setTempPath(path);
-		// tempPath = e.target.value;
-		// console.log(tempPath);
 
 		setformData({
 			...formData,
@@ -64,16 +59,15 @@ function Upload(props) {
 			branch: subjectItems[index].branch,
 			sem: "sem" + subjectItems[index].sem,
 		})
-		firestore
-			.doc(path)
-			.get()
+
+		firestore.doc(path).get()
 			.then((doc) => {
-				if (doc.exists) {
+				if (doc.exists && doc.data().modules != null) {
 					setModuleItems(doc.data().modules);
 					console.log(moduleItems);
 				} else {
 					// doc.data() will be undefined in this case
-					console.log('No such document!');
+					console.log('No such document! or Field exists');
 				}
 			})
 			.catch((error) => {
@@ -81,18 +75,27 @@ function Upload(props) {
 			});
 	};
 
-	const handleTopicPath = (e) => {
-		console.log("INside handleTopicPath")
+	// Update modules in put formData state when a module is selected
+	const handleModule = (e) => {
 		setformData({
 			...formData,
-			module: e.target.value
+			module: e.target.value,
+			moduleID: e.target.id
 		})
-		const path = tempPath + '/' + e.target.value + "/";
-		console.log(path);
-		setFullPath(path);
-		console.log("left handleTopicPath")
 	};
 
+	// will run when a new module is added
+	const addModule = (e) => {
+		setformData({
+			...formData,
+			module: e.target.value,
+			moduleID: moduleItems.length + 1,
+			isNewModule: true
+		})
+	}
+
+
+	// Complete the formData state field with its respective value
 	const handleChange = (e) => {
 		const authName = props.profile.firstname + " " + props.profile.lastname;
 		const authID = props.auth.uid;
@@ -104,61 +107,69 @@ function Upload(props) {
 		})
 	}
 
+	// store the file from file-upload field
 	const handleVideo = (e) => {
-		// console.log(e.target.files[0]);
 		setVideo(e.target.files[0]);
 	};
-
 	const handleFile = (e) => {
-		// console.log(e.target.files[0]);
 		setFile(e.target.files[0]);
 	};
 
+	// a function that will upload the file to respective path
 	async function fileUploader(path, file) {
 		var downURL = null;
 		return new Promise((resolve, reject) => {
 			console.log("Uploading...");
-			const storageRef = firebase.storage().ref(`${fullPath}${file.name}`).put(file)
+			const storageRef = firebase.storage().ref(`${path}${file.name}`).put(file)
 			storageRef.on("state_changed",
 				snapshot => {
 					const prog = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
 					setProgress(prog);
 				},
 				error => {
-					console.log(error);
+					console.log("Error in uploading " + file.name + " : " + error);
 					reject(error);
 				},
 				async () => {
 					downURL = await storageRef.snapshot.ref.getDownloadURL()
-					console.log("upload success");
+					console.log(`${file.name} uploaded successfully`);
 					resolve(downURL);
 				});
 		});
 	}
 
+	// submit function of the form
 	async function handleUpload() {
 
 		var VideoURL = null;
 		var FileURL = null;
+
 		console.log(formData);
 		console.log(video);
 		console.log(file);
-		console.log(fullPath);
+
+		const fullpath = `LJ/${formData.sem}/${formData.branch}/${formData.subject}/${formData.module}/`;
+		const path = `LJ/${formData.sem}/${formData.branch}`
+
+		console.log(fullpath);
+		console.log(path);
+
 		(async () => {
-			VideoURL = await fileUploader(fullPath, video);
+			VideoURL = await fileUploader(fullpath, video);
 			console.log("Video URL: " + VideoURL);
 		})().then(async () => {
-			FileURL = await fileUploader(fullPath, file);
+			FileURL = await fileUploader(fullpath, file);
 			console.log("File URL: " + FileURL);
 		}).then(async () => {
 			console.log('Creating Document...');
-			await firestore.collection(`${fullPath}`)
+			// make a new doc for every new video/topic
+			await firestore.collection(`${fullpath}`)
 				.add({
 					title: formData.title,
 					dec: formData.desc,
 					branch: formData.branch,
 					createdAt: new Date(),
-					module: '1',
+					module: formData.moduleID,
 					moduleName: formData.module,
 					sem: formData.sem,
 					subject: formData.subject,
@@ -168,12 +179,22 @@ function Upload(props) {
 					videoURL: VideoURL
 				})
 				.then((res) => {
-					console.log('Upadted in DOC');
-				})
-				.catch((error) => {
+					console.log('Document is created');
+					// update the MBR if new module is added
+					if (formData.isNewModule) {
+						console.log("Updating module MBR")
+						firestore.collection(`${path}`).doc(`${formData.subject}`).set({
+							modules: firebase.firestore.FieldValue.arrayUnion({
+								id: formData.moduleID,
+								name: formData.module
+							})
+						}, { merge: true }).then(() => console.log("Modules updated"))
+					}
+				}).catch((error) => {
 					console.log(error);
 				});
 		})
+
 	};
 
 	// // display loding until user is profiled
@@ -209,17 +230,29 @@ function Upload(props) {
 				</FormGroup>
 				<FormGroup className="row">
 					<Label for="selectModule" className="col-md-3">Module</Label>
-					<CustomInput type="select" className="col-md-8" id="module" name="module" onChange={handleTopicPath}>
+					<CustomInput type="select" className="col-md-6" id="module" name="module" onChange={handleModule}>
 						<option value="">Select the module</option>
 						{
-							moduleItems.map((item) => (
-								<option key={item.id} value={item.name} name="module">
+							moduleItems.map((item, index) => (
+								<option key={item.id} id={index} value={item.name} name="module">
 									{item.name}
 								</option>
 							))
 						}
 					</CustomInput>
+					<Button className=" offset-md-1 col-md-1" type="button" id="addModule" style={{ backgroundColor: "blueviolet" }} onClick={() => setMod(!modToggle)}>{modToggle ? <strong>-</strong> : <strong>+</strong>}</Button>
 				</FormGroup>
+				{modToggle ?
+					<FormGroup className="row">
+						<Input
+							className="offset-md-3 col-md-8"
+							type="text"
+							name="newMod"
+							id="newMod"
+							placeholder="Add new module here"
+							onChange={addModule}
+						/>
+					</FormGroup> : <span></span>}
 				<FormGroup className="row">
 					<Label for="title" className="col-md-3">
 						Title
