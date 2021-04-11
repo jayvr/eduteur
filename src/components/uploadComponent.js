@@ -21,7 +21,7 @@ import Loading from "./LoadingComponent";
 
 function Upload(props) {
 	const [subjectItems, setSubjectItems] = useState(props.profile.subjects);
-	const [moduleItems, setModuleItems] = useState([{ id: '1', name: 'please select the subject first', ref: '' }]);
+	const [moduleItems, setModuleItems] = useState([{ id: "0", name: "select the subject" }]);
 	const [formData, setformData] = useState({
 		title: "",
 		desc: "",
@@ -32,9 +32,9 @@ function Upload(props) {
 		branch: "",
 		uid: "",
 		moduleID: "",
-		isNewModule: false
-
+		isNewModule: false,
 	})
+	const [isFirstModule, setFirstModule] = useState(false)
 	const [video, setVideo] = useState(null)
 	const [file, setFile] = useState(null)
 
@@ -66,8 +66,8 @@ function Upload(props) {
 					setModuleItems(doc.data().modules);
 					console.log(moduleItems);
 				} else {
-					// doc.data() will be undefined in this case
-					console.log('No such document! or Field exists');
+					setFirstModule(true);
+					console.log("No such doc or field exists!")
 				}
 			})
 			.catch((error) => {
@@ -85,13 +85,23 @@ function Upload(props) {
 	};
 
 	// will run when a new module is added
+	// if it is first modeule - moduleID = 1 else it will increment to existing one
 	const addModule = (e) => {
-		setformData({
-			...formData,
-			module: e.target.value,
-			moduleID: moduleItems.length + 1,
-			isNewModule: true
-		})
+		if (isFirstModule) {
+			setformData({
+				...formData,
+				module: e.target.value,
+				moduleID: "1",
+				isNewModule: true
+			})
+		} else {
+			setformData({
+				...formData,
+				module: e.target.value,
+				moduleID: moduleItems.length + 1,
+				isNewModule: true
+			})
+		}
 	}
 
 
@@ -115,12 +125,18 @@ function Upload(props) {
 		setFile(e.target.files[0]);
 	};
 
-	// a function that will upload the file to respective path
-	async function fileUploader(path, file) {
+	// a function that will upload the file to respective path.
+	//  -- parameters --
+	// path  - string             - path to upload file in storage
+	// file  - a file/blob object - a file which is to be uploaded
+	// fname - string             - name of file w.r.t lecture topic/title
+	//  -- return --
+	// URL - string - of the uploaded file
+	async function fileUploader(path, file, fname) {
 		var downURL = null;
 		return new Promise((resolve, reject) => {
 			console.log("Uploading...");
-			const storageRef = firebase.storage().ref(`${path}${file.name}`).put(file)
+			const storageRef = firebase.storage().ref(`${path}${fname}`).put(file)
 			storageRef.on("state_changed",
 				snapshot => {
 					const prog = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
@@ -139,27 +155,35 @@ function Upload(props) {
 	}
 
 	// submit function of the form
-	async function handleUpload() {
+	async function handleUpload(e) {
+
+		e.preventDefault();
 
 		var VideoURL = null;
 		var FileURL = null;
+		const videoName = formData.title;
+		const fileName = videoName + " - Resources"
 
 		console.log(formData);
+		console.log("is first module: " + isFirstModule);
 		console.log(video);
 		console.log(file);
 
-		const fullpath = `LJ/${formData.sem}/${formData.branch}/${formData.subject}/${formData.module}/`;
-		const path = `LJ/${formData.sem}/${formData.branch}`
+		const college = props.profile.college;
+		const fullpath = `${college}/${formData.sem}/${formData.branch}/${formData.subject}/${formData.module}/`;
+		const path = `${college}/${formData.sem}/${formData.branch}`
 
 		console.log(fullpath);
 		console.log(path);
 
 		(async () => {
-			VideoURL = await fileUploader(fullpath, video);
+			VideoURL = await fileUploader(fullpath, video, videoName);
 			console.log("Video URL: " + VideoURL);
 		})().then(async () => {
-			FileURL = await fileUploader(fullpath, file);
-			console.log("File URL: " + FileURL);
+			if (file != null) {
+				FileURL = await fileUploader(fullpath, file, fileName);
+				console.log("File URL: " + FileURL);
+			}
 		}).then(async () => {
 			console.log('Creating Document...');
 			// make a new doc for every new video/topic
@@ -210,7 +234,7 @@ function Upload(props) {
 
 	return (
 		// <ProfileIsLoaded>
-		<Form>
+		<Form onSubmit={handleUpload}>
 			<Container>
 				<h1>Upload/Go Live</h1>
 				<hr />
@@ -231,7 +255,7 @@ function Upload(props) {
 				<FormGroup className="row">
 					<Label for="selectModule" className="col-md-3">Module</Label>
 					<CustomInput type="select" className="col-md-6" id="module" name="module" onChange={handleModule}>
-						<option value="">Select the module</option>
+						<option value="">Select the module </option>
 						{
 							moduleItems.map((item, index) => (
 								<option key={item.id} id={index} value={item.name} name="module">
@@ -240,7 +264,7 @@ function Upload(props) {
 							))
 						}
 					</CustomInput>
-					<Button className=" offset-md-1 col-md-1" type="button" id="addModule" style={{ backgroundColor: "blueviolet" }} onClick={() => setMod(!modToggle)}>{modToggle ? <strong>-</strong> : <strong>+</strong>}</Button>
+					<Button className=" offset-md-1 col-md-1" type="button" id="addModule" style={{ backgroundColor: "blueviolet" }} onClick={() => setMod(!modToggle)}>{modToggle ? <strong>➖</strong> : <strong>➕</strong>}</Button>
 				</FormGroup>
 				{modToggle ?
 					<FormGroup className="row">
@@ -264,6 +288,7 @@ function Upload(props) {
 						id="title"
 						placeholder="Title for the video"
 						onChange={handleChange}
+						required
 					/>
 				</FormGroup>
 				<FormGroup className="row">
@@ -277,6 +302,7 @@ function Upload(props) {
 						id="exampleText"
 						placeholder="Add Description"
 						onChange={handleChange}
+						required
 					/>
 				</FormGroup>
 				<FormGroup className="row">
@@ -291,6 +317,7 @@ function Upload(props) {
 						label="Yo, pick a file!"
 						accept="video/*"
 						onChange={handleVideo}
+						required
 					/>
 				</FormGroup>
 				<FormGroup className="row" >
@@ -310,7 +337,7 @@ function Upload(props) {
 					<Button
 						style={{ backgroundColor: "green" }}
 						className="offset-md-2 col-md-6"
-						onClick={handleUpload}
+						onSubmit={handleUpload}
 					>
 						Upload
 					</Button>
