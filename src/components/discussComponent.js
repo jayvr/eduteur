@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Container, Dropdown, DropdownItem, DropdownToggle, DropdownMenu, Card, ListGroup, ListGroupItem, ListGroupItemHeading, ListGroupItemText, CardHeader, CardBody, CardFooter, Button, Form, CardTitle, FormGroup, Label, Input, CustomInput } from "reactstrap"
+import { Container, Dropdown, DropdownItem, DropdownToggle, DropdownMenu, Card, ListGroup, ListGroupItem, ListGroupItemHeading, ListGroupItemText, CardHeader, CardBody, CardFooter, Button, Form, CardTitle, FormGroup, Label, Input, CustomInput, Collapse } from "reactstrap"
 
 
 const DropdownBtn = (props) => {
@@ -26,6 +26,49 @@ const DropdownBtn = (props) => {
 
     )
 
+}
+
+const AskQue = (props) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const toggle = () => setIsOpen(!isOpen);
+    const closeCard = () => setIsOpen(false)
+
+    return (
+        <>
+            <Card>
+                <Form>
+                    <CardHeader className="d-flex justify-content-between">
+                        <h3 color="primary" onClick={toggle} style={{ marginBottom: '1rem', cursor: "pointer" }}>Ask Question</h3>
+                        {isOpen ?
+                            <div className="col-4">
+                                <Input type="reset" value="Reset" />
+                            </div> : <> </>}
+                    </CardHeader>
+                    <Collapse isOpen={isOpen} >
+                        <CardBody>
+                            <CardTitle tag="h5">Question</CardTitle>
+                            <FormGroup>
+                                <Input type="text" name="question" id="question" placeholder="Your question here" bsSize="lg" />
+                            </FormGroup>
+                            <FormGroup>
+                                <Input type="textarea" name="desc" id="desc" placeholder="Description of your question" />
+                            </FormGroup>
+                            {/* Add file attachment UI and backend */}
+                            <FormGroup>
+                                {/* <Label for="addresources" className="col-md-3" >Additional Resources</Label> */}
+                                <CustomInput type="file" id="file" name="file" label="upload file" />
+                            </FormGroup>
+                        </CardBody>
+                        <CardFooter className="d-flex justify-content-end">
+                            <Button color="primary">Ask</Button> {"  "}
+                            <Button color="danger" onClick={toggle}
+                            >Cancel</Button>
+                        </CardFooter>
+                    </Collapse>
+                </Form>
+            </Card>
+        </>
+    );
 }
 function Discuss() {
 
@@ -108,39 +151,9 @@ function Discuss() {
                     </ListGroup>
                 </div>
                 <div className="col-md-3">
-                    <Card>
-                        <Form>
-                            <CardHeader className="d-flex justify-content-between">
-                                <h3>Ask Question</h3>
-                                <div className="col-4">
-                                    <Input type="reset" value="Reset" />
-                                </div>
-                            </CardHeader>
-                            <CardBody>
-                                <CardTitle tag="h5">Question</CardTitle>
-                                <FormGroup>
-                                    <Input type="text" name="question" id="question" placeholder="Your question here" bsSize="lg" />
-                                </FormGroup>
-                                <FormGroup>
-                                    <Input type="textarea" name="desc" id="desc" placeholder="Description of your question" />
-                                </FormGroup>
-                                {/* Add file attachment UI and backend */}
-                                <FormGroup>
-                                    {/* <Label for="addresources" className="col-md-3" >Additional Resources</Label> */}
-                                    <CustomInput type="file" id="file" name="file" label="upload file" />
-                                </FormGroup>
-                            </CardBody>
-                            <CardFooter className="d-flex justify-content-end">
-                                <Button color="primary">Ask</Button> {"  "}
-                                <Button color="danger"
-                                >Cancel</Button>
-                            </CardFooter>
-                        </Form>
-                    </Card>
+                    <AskQue />
                 </div>
             </div>
-
-            <video src="https://firebasestorage.googleapis.com/v0/b/eduteur-715e2.appspot.com/o/LJ%2Fsem1%2Fict%2Fpython%2Fzelda.mp4?alt=media&token=ef80c8eb-c56c-41b4-a7d3-d62d93e45a85" controls ></video>
         </div>
     );
 }

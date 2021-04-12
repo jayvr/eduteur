@@ -15,7 +15,7 @@ const LandingJumbotron = (props) => {
                 <Jumbotron fluid>
                     <Container>
                         <h1 className="display-3">Eduteur!</h1>
-                        <p className="lead">A Unique, Innovative and Interactive place for student to learn the concept of the sujbect which are based on their university syllabus.</p>
+                        <p className="lead">A Unique, Innovative and Interactive place for student to learn the concept of the subject which are based on their university syllabus.</p>
                         <hr className="my-2" />
                         <p>Sign up to get ready for experiencing the same.</p>
                         <br />

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem, Container, Row, ListGroup, ListGroupItem, ListGroupItemHeading, ListGroupItemText } from 'reactstrap';
+import Video from "./videoComponent";
 
 const DropdownBtn = (props) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -129,7 +130,11 @@ function Subject() {
                 {/* <container>
                     <ListTopics topics={topicItems} />
                 </container> */}
+
+                <Video />
+
             </Container>
+
         </div>
     );
 }
