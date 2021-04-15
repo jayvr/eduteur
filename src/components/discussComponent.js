@@ -34,11 +34,15 @@ const AskQue = (props) => {
     const closeCard = () => setIsOpen(false)
 
     return (
-        <>
-            <Card>
+        <div>
+            <Card className="askques-card">
                 <Form>
                     <CardHeader className="d-flex justify-content-between">
-                        <h3 color="primary" onClick={toggle} style={{ marginBottom: '1rem', cursor: "pointer" }}>Ask Question</h3>
+                        <div className="askques-card-heading" onClick={toggle} style={{
+                            cursor: "pointer",
+                        }}>
+                            <h3 color="primary" style={{ marginBottom: '1rem' }}>Ask Question</h3>
+                        </div>
                         {isOpen ?
                             <div className="col-4">
                                 <Input type="reset" value="Reset" />
@@ -46,28 +50,27 @@ const AskQue = (props) => {
                     </CardHeader>
                     <Collapse isOpen={isOpen} >
                         <CardBody>
-                            <CardTitle tag="h5">Question</CardTitle>
-                            <FormGroup>
-                                <Input type="text" name="question" id="question" placeholder="Your question here" bsSize="lg" />
+                            <FormGroup className="askQues-input">
+                                <Input type="text" name="question" id="question" style={{ backgroundColor: "#fff" }} placeholder="Your question here" bsSize="lg" />
                             </FormGroup>
-                            <FormGroup>
-                                <Input type="textarea" name="desc" id="desc" placeholder="Description of your question" />
+                            <FormGroup className="askQues-input">
+                                <Input type="textarea" name="desc" id="desc" style={{ backgroundColor: "#fff" }} placeholder="Description of your Question" />
                             </FormGroup>
                             {/* Add file attachment UI and backend */}
                             <FormGroup>
                                 {/* <Label for="addresources" className="col-md-3" >Additional Resources</Label> */}
-                                <CustomInput type="file" id="file" name="file" label="upload file" />
+                                <CustomInput type="file" id="file" name="file" label="upload file" />+
                             </FormGroup>
                         </CardBody>
                         <CardFooter className="d-flex justify-content-end">
-                            <Button color="primary">Ask</Button> {"  "}
+                            <Button className="btn-success">Ask</Button> {"  "}
                             <Button color="danger" onClick={toggle}
                             >Cancel</Button>
                         </CardFooter>
                     </Collapse>
                 </Form>
             </Card>
-        </>
+        </div>
     );
 }
 function Discuss() {

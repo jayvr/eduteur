@@ -38,6 +38,7 @@ const rrfProps = {
 // display loding until user is authenticated
 function AuthIsLoaded({ children }) {
   const auth = useSelector(state => state.firebase.auth)
+  // const profile = useSelector(state => state.firebase.profile)
   if (!isLoaded(auth)) {
     return (
       <Loading message="Authenticating..." />

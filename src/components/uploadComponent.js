@@ -18,6 +18,9 @@ import {
 import { getFirestore } from 'redux-firestore';
 import { useFirebase, isLoaded } from 'react-redux-firebase';
 import Loading from "./LoadingComponent";
+import Plus from "../images/icons/plus.svg";
+import Minus from "../images/icons/minus.svg";
+import "../App.css";
 
 function Upload(props) {
 	const [subjectItems, setSubjectItems] = useState(props.profile.subjects);
@@ -234,16 +237,16 @@ function Upload(props) {
 
 	return (
 		// <ProfileIsLoaded>
-		<Form onSubmit={handleUpload}>
+		<Form className="upload-form" onSubmit={handleUpload}>
 			<Container>
-				<h1>Upload/Go Live</h1>
+				<h1 id="form-heading">Upload Module / Materials</h1>
 				<hr />
 				<FormGroup className=" row offset-md-3">
 					<Dropdown isOpen={dropdownOpen} toggle={toggle} >
-						<DropdownToggle style={{ backgroundColor: 'blueviolet', color: 'white' }} caret>
+						<DropdownToggle id="subject-toggle" caret>
 							Subjects
-							</DropdownToggle>
-						<DropdownMenu>
+						</DropdownToggle>
+						<DropdownMenu id="subject-drop">
 							{subjectItems.map((item, index) => (
 								<DropdownItem key={item.id} name={item.name} value={item.path} id={index} onClick={handleSubject}>
 									{item.name}
@@ -254,17 +257,17 @@ function Upload(props) {
 				</FormGroup>
 				<FormGroup className="row">
 					<Label for="selectModule" className="col-md-3">Module</Label>
-					<CustomInput type="select" className="col-md-6" id="module" name="module" onChange={handleModule}>
-						<option value="">Select the module </option>
+					<Input type="select" className="col-md-6" id="module" name="module" onChange={handleModule} required="true">
+						<option value="" disabled selected>Select Module</option>
 						{
 							moduleItems.map((item, index) => (
-								<option key={item.id} id={index} value={item.name} name="module">
+								<option key={item.id} id={index} value={item.name} name="module" className="module-options">
 									{item.name}
 								</option>
 							))
 						}
-					</CustomInput>
-					<Button className=" offset-md-1 col-md-1" type="button" id="addModule" style={{ backgroundColor: "blueviolet" }} onClick={() => setMod(!modToggle)}>{modToggle ? <strong>➖</strong> : <strong>➕</strong>}</Button>
+					</Input>
+					<Button className="offset-md-1" type="button" id="addModule" onClick={() => setMod(!modToggle)}>{modToggle ? <img src={Minus} /> : <img src={Plus} />}</Button>
 				</FormGroup>
 				{modToggle ?
 					<FormGroup className="row">
@@ -273,7 +276,7 @@ function Upload(props) {
 							type="text"
 							name="newMod"
 							id="newMod"
-							placeholder="Add new module here"
+							placeholder="Add new Module"
 							onChange={addModule}
 						/>
 					</FormGroup> : <span></span>}
@@ -309,10 +312,10 @@ function Upload(props) {
 					<Label for="videofile" className="col-md-3">
 						Video File
 					</Label>
-					<CustomInput
+					<Input
 						className="col-md-8"
 						type="file"
-						id="videofile"
+						id="video-file"
 						name="video"
 						label="Yo, pick a file!"
 						accept="video/*"
@@ -324,19 +327,20 @@ function Upload(props) {
 					<Label for="addresources" className="col-md-3">
 						Additional Resources
 					</Label>
-					<CustomInput
+					<Input
 						className="col-md-8"
 						type="file"
-						id="file"
+						id="add-file"
 						name="file"
+						multiple="true"
 						label="Yo, pick a file!"
 						onChange={handleFile}
 					/>
 				</FormGroup>
-				<Row className="offset-md-3 ">
+				<Row className="offset-md-4">
 					<Button
-						style={{ backgroundColor: "green" }}
-						className="offset-md-2 col-md-6"
+						className=""
+						id="upload-btn"
 						onSubmit={handleUpload}
 					>
 						Upload

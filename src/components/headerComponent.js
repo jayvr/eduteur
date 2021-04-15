@@ -24,26 +24,32 @@ import {
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import { logIn, logOut } from "../redux/actioncreators/authActions";
-import eduteur from "../images/logo.svg";
-
+import Search from "../images/icons/search.svg";
+import User from "../images/icons/user.svg";
+import UserDrop from "../images/icons/user-drop.svg";
+import Stats from "../images/icons/stats.svg";
+import Settings from "../images/icons/settings.svg";
+import '../App.css';
 
 
 const UserLogged = (props) => {
 
   const username = props.profile.firstname
+
+  // performs logout
   const handleLogout = (e) => {
-    // do logout
     props.logOut()
   }
+
   return (
     <Nav pills>
       <UncontrolledDropdown nav inNavbar>
-        <DropdownToggle nav caret style={{ color: "blueviolet" }}>{username}</DropdownToggle>
-        <DropdownMenu right>
-          <DropdownItem>Stats</DropdownItem>
-          <DropdownItem>Settings</DropdownItem>
+        <DropdownToggle id="user-name" nav><img id="user-avatar-icon" src={User} /> {username} <img src={UserDrop} /></DropdownToggle>
+        <DropdownMenu id="user-drop" right>
+          <DropdownItem id="stats-btn"><img src={Stats} id="stats-icon" />Stats</DropdownItem>
+          <DropdownItem id="settings-btn"><img src={Settings} id="settings-icon" />Settings</DropdownItem>
           <DropdownItem divider />
-          <DropdownItem onClick={handleLogout}>Logout</DropdownItem>
+          <DropdownItem id="logout-btn" onClick={handleLogout}><svg xmlns="http://www.w3.org/2000/svg" id="logout-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e84545" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather feather-log-out"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>Logout</DropdownItem>
         </DropdownMenu>
       </UncontrolledDropdown >
     </Nav >
@@ -51,7 +57,7 @@ const UserLogged = (props) => {
 }
 
 
-
+//Modal popup for Login
 const LoginModal = (props) => {
 
   // const onClosed = props; // will have a function that will exectute on model close
@@ -102,7 +108,7 @@ const LoginModal = (props) => {
           </Form>
         </ModalBody>
         <ModalFooter>
-          <Button style={{ backgroundColor: "blueviolet", color: "white" }} onClick={handleSubmit} id="login">login</Button>{' '}
+          <Button type="submit" style={{ backgroundColor: "blueviolet", color: "white" }} onClick={handleSubmit} id="login">Login</Button>{' '}
           <Button style={{ backgroundColor: "grey", color: "white" }} onClick={toggle}>Cancel</Button>
         </ModalFooter>
       </Modal>
@@ -116,8 +122,8 @@ function Header(props) {
   const toggle = () => setIsOpen(!isOpen);
   // console.log(props);
   return (
-    <Navbar color="light" light expand="md"  >
-      <NavbarBrand><Link style={{ color: "blueviolet", fontSize: "1.5em", textDecoration: "none" }} to="/">Eduteur</Link></NavbarBrand>
+    <Navbar color="light" light expand="md">
+      <NavbarBrand><Link to="/">Eduteur</Link></NavbarBrand>
 
       {props.auth.uid ?
         <>
@@ -125,17 +131,25 @@ function Header(props) {
           <Collapse isOpen={isOpen} navbar>
             <Nav className="mr-auto" navbar>
               <NavItem>
-                <NavLink><Link to="/subject" style={{ color: "blueviolet" }}>Subject</Link></NavLink>
+                <NavLink className="nav-links active"><Link to="/subject">Subject</Link></NavLink>
               </NavItem>
               <NavItem>
-                <NavLink><Link to="/discuss" style={{ color: "blueviolet" }}>Discuss</Link></NavLink>
+                <NavLink className="nav-links"><Link to="/discuss">Discuss</Link></NavLink>
               </NavItem>
             </Nav>
+            <div class="search">
+              <div class="search_bar"></div>
+              <input type="text" name="search here" class="search_placeholder" placeholder="Search here..." />
+              <div class="search_icon_space">
+                <img src={Search} />
+              </div>
+            </div>
             <UserLogged logOut={props.logOut} profile={props.profile}></UserLogged>
           </Collapse>
         </> :
-        <LoginModal logIn={props.logIn}></LoginModal>}
-    </Navbar>
+        <LoginModal logIn={props.logIn}></LoginModal>
+      }
+    </Navbar >
   );
 
 }

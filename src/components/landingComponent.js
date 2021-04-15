@@ -1,11 +1,21 @@
 import {
     Jumbotron,
     Container,
-    Button
+    Button,
+    Card,
+    CardImg,
+    CardBody,
+    CardTitle,
+    CardText,
+    Row,
+    Col
 } from 'reactstrap';
 import { connect } from "react-redux";
 import { Link } from 'react-router-dom';
-
+import UploadImg from "../images/icons/upload.svg";
+import GoLiveImg from "../images/icons/go-live.svg";
+import LatestImg from "../images/icons/latest-img.svg";
+import '../App.css';
 
 
 const LandingJumbotron = (props) => {
@@ -38,27 +48,85 @@ const TeacherLandingPage = (props) => {
 
     const uid = props.auth.uid;
     return (
-        <Container>
-            <Link to="/upload"> <Button> Upload</Button></Link>
+        <Container className="main">
+            <div id="heading-text">UPLOAD / GO LIVE</div>
+            <Row>
+                <Col>
+                    <Link to="/upload">
+                        <Card className="upload-card">
+                            <CardBody className="upload-body">
+                                <CardText className="upload-text"><img src={UploadImg} id="upload-icon" />UPLOAD</CardText>
+                            </CardBody>
+                        </Card>
+                    </Link>
+                </Col>
+                <Col>
+                    <Link to="#">
+                        <Card className="golive-card">
+                            <CardBody className="golive-body">
+
+                                <CardText className="golive-text"><img src={GoLiveImg} id="golive-icon" />GO LIVE</CardText>
+                            </CardBody>
+                        </Card>
+                    </Link>
+                </Col>
+            </Row>
+            <hr id="line" />
+            <div id="heading-text">LATEST</div>
+            <Row>
+                <Col>
+                    <Link to="#">
+                        <Card className="latest-card-1">
+                            <CardImg id="latest-image" top width="10%" src={LatestImg} alt=":(" />
+                            <CardBody className="latest-body-1">
+                                <CardTitle className="latest-title-text">LATEST-1</CardTitle>
+                                <CardText className="latest-desc-text">About the lecture</CardText>
+                            </CardBody>
+                        </Card>
+                    </Link>
+                </Col>
+                <Col>
+                    <Link to="#">
+                        <Card className="latest-card-2">
+                            <CardImg id="latest-image" top width="10%" src={LatestImg} alt=":(" />
+                            <CardBody className="latest-body-2">
+                                <CardTitle className="latest-title-text">LATEST-2</CardTitle>
+                                <CardText className="latest-desc-text">About the lecture</CardText>
+                            </CardBody>
+                        </Card>
+                    </Link>
+                </Col>
+                <Col>
+                    <Link to="#">
+                        <Card className="latest-card-3">
+                            <CardImg id="latest-image" top width="10%" src={LatestImg} alt=":(" />
+                            <CardBody className="latest-body-3">
+                                <CardTitle className="latest-title-text">LATEST-3</CardTitle>
+                                <CardText className="latest-desc-text">About the lecture</CardText>
+                            </CardBody>
+                        </Card>
+                    </Link>
+                </Col>
+            </Row>
         </Container>
     );
 }
 
 const ShowProperLandingPage = (props) => {
     // console.log(props); good boiii :)
-    if ( props.firebase.profile.role == "faculty") {
-        return(
+    if (props.firebase.profile.role == "faculty") {
+        return (
             <TeacherLandingPage auth={props.firebase.auth} />
         );
     }
-    
-    else if ( props.firebase.profile.role == "student"){
+
+    else if (props.firebase.profile.role == "student") {
         return (
             <StudentLandingPage auth={props.firebase.auth} />
         );
     }
     else {
-        return(
+        return (
             <div>
                 <h1>NO PROFILE</h1>
             </div>
@@ -78,8 +146,8 @@ function Landing(props) {
 const MapStateToProps = (state) => {
     // console.log(state);
     return {
-        firebase : state.firebase
-        
+        firebase: state.firebase
+
     }
 }
 
