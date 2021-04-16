@@ -4,7 +4,10 @@ import Video from "./videoComponent";
 import { getFirestore } from 'redux-firestore';
 import { useFirebase, isLoaded } from 'react-redux-firebase';
 import { connect, useSelector } from 'react-redux';
+import { Link, Route, useParams, useRouteMatch } from "react-router-dom";
 import Loading from "./LoadingComponent";
+
+
 
 function useAsyncReference(value) {
     const ref = useRef(value);
@@ -31,6 +34,11 @@ function Subject(props) {
     const [selectedSubject, setSelectedSubject] = useState("Subjects");
     const [selectedModule, setSelectedModule] = useState("Modules");
     const [selectedTopic, setSelectedTopic] = useState("Topics");
+    const [topicPath, setTopicPath] = useState("");
+    const [videoData, setVideoData] = useState({});
+
+    let res = null;
+
 
     const firestore = getFirestore();
     const firebase = useFirebase();
@@ -44,14 +52,14 @@ function Subject(props) {
 
         const fetcher = (e) => {
             console.log("inside fetcher")
-            if (props.fetch == "subjects") {
+            if (props.fetch === "subjects") {
                 // subject
-            } else if (props.fetch == "modules") {
+            } else if (props.fetch === "modules") {
                 // modules
                 setSelectedSubject(e.target.value)
                 fetchModules(e.target.value)
                 // console.log("inside fetcher" + e.target.value)
-            } else if (props.fetch == "topics") {
+            } else if (props.fetch === "topics") {
                 // topic
                 setSelectedModule(e.target.value)
                 setTopicItems([]);
@@ -66,10 +74,10 @@ function Subject(props) {
                 <DropdownToggle style={{ backgroundColor: "blueviolet", color: "white" }} caret>
                     {header}
                 </DropdownToggle>
-                <DropdownMenu>
+                <DropdownMenu >
                     {
                         items.map((item, index) => (
-                            <DropdownItem key={index} value={item.name} onClick={fetcher}>{item.name}</DropdownItem>
+                            <DropdownItem key={index} value={item.name} onClick={fetcher} >{item.name}</DropdownItem>
                         ))
                     }
                 </DropdownMenu>
@@ -80,24 +88,39 @@ function Subject(props) {
 
 
     const ListTopics = (props) => {
-
         const [topics, setTopics] = useState(props.topics);
+        const [subject, setSubject] = useState(props.subject);
+        const [module, setModule] = useState(props.module);
+
+        const { url, path } = useRouteMatch();
+
+        async function handleVideo(e) {
+            console.log(e.target.id)
+            setSelectedTopic(e.target.id)
+            const path = `${topicPath}/${e.target.id}`
+            setTopicPath(path);
+
+            res = topicItems.find(({ id }) => id === e.target.id)
+            // console.log(res)
+            setVideoData(res);
+        }
 
         return (
             <ListGroup>
                 {
                     topics.map((topic) => (
-                        <ListGroupItem to="#" key={topic.id} action>
-                            <ListGroupItemHeading>{topic.title} --- {topic.moduleName}</ListGroupItemHeading>
-                            <ListGroupItemText>{topic.dec}</ListGroupItemText>
+                        <ListGroupItem onClick={handleVideo} id={topic.id} key={topic.id} action>
+                            <Link to={`/video/${topic.id}`}>
+                                <ListGroupItemHeading id={topic.id}>{topic.title} --- {topic.moduleName}</ListGroupItemHeading>
+                                <ListGroupItemText id={topic.id}>{topic.dec}</ListGroupItemText>
+                            </Link>
                         </ListGroupItem>
+
                     ))
                 }
-            </ListGroup>
+            </ListGroup >
         )
     }
-
-    // console.log("UserData: " + userData);
 
     const fetchSubject = () => {
 
@@ -107,22 +130,14 @@ function Subject(props) {
         firestore.doc(path).get().then((doc) => {
             if (doc.exists) {
                 const data = doc.get(branch)
-                // console.log("data respond: " + data)
                 setSubjectItems(data);
-                // const data = doc.get(branch)
-                // console.log(subjectItems);
             } else {
                 console.log("No such doc or field exists!")
             }
         }).catch((error) => console.log(error))
-
-        // console.log("Subject state" + subjectItems);
     }
 
     const fetchModules = (name) => {
-        // const index = e.target.id;
-        // const name = e.target.value;
-
         const path = `${userData.college}/sem${userData.sem}/${userData.branch}/${name}`
         console.log("Module path: " + path)
         firestore.doc(path).get()
@@ -149,22 +164,21 @@ function Subject(props) {
 
     async function fetchTopics(name) {
         const path = `${userData.college}/sem${userData.sem}/${userData.branch}/${selectedSubject}/${name}`;
+        setTopicPath(path);
         var data = [];
 
         const topicRef = firestore.collection(path);
         const snapshot = await topicRef.get();
         snapshot.forEach((doc) => {
-            data.push({ ...doc.data() })
+            data.push({ ...doc.data(), id: doc.id })
+
         });
+        console.log(data)
         setTopicItems(data)
     }
 
 
     useEffect(() => {
-        // const profile = props.profile
-        // if (isLoaded(profile)) {
-        //     fetchSubject()
-        // }
         fetchSubject()
     }, [])
 
@@ -182,9 +196,8 @@ function Subject(props) {
 
     return (
         <ProfileIsLoaded>
-            <Container>
+            <Container style={{ marginTop: "100px" }}>
                 <br />
-                <hr />
                 <Row className="justify-content-around">
                     <div className="subject col-sm-4 col-md-1">
                         <DropdownBtn header={selectedSubject} items={subjectItems} fetch="modules" />
@@ -197,15 +210,26 @@ function Subject(props) {
                     </div> */}
                 </Row>
                 <hr />
+                <Row>
+                    <div ClassName="col">
+                        {selectedSubject}/{selectedModule}
+                    </div>
+                </Row>
+                <hr />
                 <br />
                 <container>
-                    <ListTopics topics={topicItems} />
+                    <ListTopics subject={selectedSubject} module={selectedModule} topics={topicItems} />
                 </container>
 
-                {/* <Video /> */}
-
+                {/* <Video subject={selectedSubject} module={selectedModule} topics={selectedTopic} path={topicPath} data={videoData} /> */}
+                {/* <Route path="video/:videoID">
+                    <Video subject={selectedSubject} module={selectedModule} topics={selectedTopic} path={topicPath} data={videoData} />
+                </Route> */}
+                <Route path="video/:videoID">
+                    <Video topicItems={topicItems} />
+                </Route>
+                {/* <Route path="video/:videoID" render={(props) => <Video topicItems={topicItems} />} /> */}
             </Container>
-
         </ProfileIsLoaded>
     );
 }

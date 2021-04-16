@@ -113,7 +113,7 @@ function Discuss() {
     ]
 
     return (
-        <div className="Discuss">
+        <div className="Discuss" style={{ marginTop: "100px" }}>
             <div className=" row offset-md-3">
                 <div className="col-md-4">
                     <DropdownBtn header="Subjects" items={subjectItems} />

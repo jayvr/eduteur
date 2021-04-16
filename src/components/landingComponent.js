@@ -12,9 +12,8 @@ import {
 } from 'reactstrap';
 import { connect } from "react-redux";
 import { Link } from 'react-router-dom';
-import UploadImg from "../images/icons/upload.svg";
-import GoLiveImg from "../images/icons/go-live.svg";
-import LatestImg from "../images/icons/latest-img.svg";
+import LatestImg from "../images/latest-img.svg";
+import { FiAirplay, FiUpload } from "react-icons/fi"
 import '../App.css';
 
 
@@ -24,12 +23,12 @@ const LandingJumbotron = (props) => {
             <Container fluid>
                 <Jumbotron fluid>
                     <Container>
-                        <h1 className="display-3">Eduteur!</h1>
-                        <p className="lead">A Unique, Innovative and Interactive place for student to learn the concept of the subject which are based on their university syllabus.</p>
+                        <h1 className="site-name">Eduteur!</h1>
+                        <p className="site-desc">A Unique, Innovative and Interactive place for student to learn the concept of the subject which are based on their university syllabus.</p>
                         <hr className="my-2" />
                         <p>Sign up to get ready for experiencing the same.</p>
                         <br />
-                        <Button style={{ backgroundColor: "blueviolet", color: "white" }} >Get Started</Button>
+                        <Button className="get-started-btn">Get Started</Button>
                     </Container>
                 </Jumbotron>
             </Container>
@@ -40,7 +39,9 @@ const LandingJumbotron = (props) => {
 
 const StudentLandingPage = (props) => {
     return (
-        <div> Student Landing Page</div>
+        <>
+            <div> Student Landing Page</div>
+        </>
     );
 }
 
@@ -55,7 +56,7 @@ const TeacherLandingPage = (props) => {
                     <Link to="/upload">
                         <Card className="upload-card">
                             <CardBody className="upload-body">
-                                <CardText className="upload-text"><img src={UploadImg} id="upload-icon" />UPLOAD</CardText>
+                                <CardText className="upload-text"><FiUpload id="upload-icon" />UPLOAD</CardText>
                             </CardBody>
                         </Card>
                     </Link>
@@ -65,7 +66,7 @@ const TeacherLandingPage = (props) => {
                         <Card className="golive-card">
                             <CardBody className="golive-body">
 
-                                <CardText className="golive-text"><img src={GoLiveImg} id="golive-icon" />GO LIVE</CardText>
+                                <CardText className="golive-text"><FiAirplay id="golive-icon" />GO LIVE</CardText>
                             </CardBody>
                         </Card>
                     </Link>
@@ -114,13 +115,13 @@ const TeacherLandingPage = (props) => {
 
 const ShowProperLandingPage = (props) => {
     // console.log(props); good boiii :)
-    if (props.firebase.profile.role == "faculty") {
+    if (props.firebase.profile.role === "faculty") {
         return (
             <TeacherLandingPage auth={props.firebase.auth} />
         );
     }
 
-    else if (props.firebase.profile.role == "student") {
+    else if (props.firebase.profile.role === "student") {
         return (
             <StudentLandingPage auth={props.firebase.auth} />
         );

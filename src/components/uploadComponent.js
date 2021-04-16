@@ -18,8 +18,7 @@ import {
 import { getFirestore } from 'redux-firestore';
 import { useFirebase, isLoaded } from 'react-redux-firebase';
 import Loading from "./LoadingComponent";
-import Plus from "../images/icons/plus.svg";
-import Minus from "../images/icons/minus.svg";
+import { FiPlus, FiMinus, FiChevronUp, FiChevronDown } from "react-icons/fi"
 import "../App.css";
 
 function Upload(props) {
@@ -37,24 +36,68 @@ function Upload(props) {
 		moduleID: "",
 		isNewModule: false,
 	})
+	const [selectedSubject, setSelectedSubject] = useState("Subjects");
+	// const [selectedSubject, setSelectedSubject] = useState("Subjects");
 	const [isFirstModule, setFirstModule] = useState(false)
 	const [video, setVideo] = useState(null)
 	const [file, setFile] = useState(null)
 
 	const [progress, setProgress] = useState(0);
-	const [dropdownOpen, setDropdownOpen] = useState(false);
+	// const [dropdownOpen, setDropdownOpen] = useState(false);
 
-	const toggle = () => setDropdownOpen((prevState) => !prevState);
+	// const toggle = () => setDropdownOpen((prevState) => !prevState);
 	const [modToggle, setMod] = useState(false);
 
 	const firebase = useFirebase();
 	const firestore = getFirestore();
 
+	const DropdownBtn = (props) => {
+		const [dropdownOpen, setDropdownOpen] = useState(false);
+		const [items, setItems] = useState(props.items);
+		const [header, setHeader] = useState(props.header);
 
+		const toggle = () => setDropdownOpen(prevState => !prevState);
+
+		const fetcher = (e) => {
+			// console.log("inside fetcher")
+			// if (props.fetch == "subjects") {
+			// 	// subject
+			// } else if (props.fetch == "modules") {
+			// 	// modules
+			// 	setSelectedSubject(e.target.value)
+			// 	fetchModules(e.target.value)
+			// 	// console.log("inside fetcher" + e.target.value)
+			// } else if (props.fetch == "topics") {
+			// 	// topic
+			// 	setSelectedModule(e.target.value)
+			// 	setTopicItems([]);
+			// 	fetchTopics(e.target.value)
+			// } else {
+			// 	// DO Nothing
+			// }
+		}
+
+		return (
+			<Dropdown isOpen={dropdownOpen} toggle={toggle}>
+				<DropdownToggle id="subject-toggle">
+					{header}
+					{dropdownOpen ? <FiChevronUp /> : <FiChevronDown />}
+				</DropdownToggle>
+				<DropdownMenu id="subject-drop">
+					{
+						items.map((item, index) => (
+							<DropdownItem key={index} value={item.name} onClick={fetcher} >{item.name}</DropdownItem>
+						))
+					}
+				</DropdownMenu>
+			</Dropdown>
+		)
+	}
 	// extract the modules form the selected subject field
 	const handleSubject = (e) => {
 		const index = e.target.id;
 		const path = e.target.value;
+		setSelectedSubject(e.target.name);
 
 		setformData({
 			...formData,
@@ -234,7 +277,6 @@ function Upload(props) {
 	// 	}
 	// 	return children
 	// }
-
 	return (
 		// <ProfileIsLoaded>
 		<Form className="upload-form" onSubmit={handleUpload}>
@@ -242,18 +284,7 @@ function Upload(props) {
 				<h1 id="form-heading">Upload Module / Materials</h1>
 				<hr />
 				<FormGroup className=" row offset-md-3">
-					<Dropdown isOpen={dropdownOpen} toggle={toggle} >
-						<DropdownToggle id="subject-toggle" caret>
-							Subjects
-						</DropdownToggle>
-						<DropdownMenu id="subject-drop">
-							{subjectItems.map((item, index) => (
-								<DropdownItem key={item.id} name={item.name} value={item.path} id={index} onClick={handleSubject}>
-									{item.name}
-								</DropdownItem>
-							))}
-						</DropdownMenu>
-					</Dropdown>
+					<DropdownBtn header={selectedSubject} items={subjectItems} required data-error="Subject is Required." />
 				</FormGroup>
 				<FormGroup className="row">
 					<Label for="selectModule" className="col-md-3">Module</Label>
@@ -267,7 +298,7 @@ function Upload(props) {
 							))
 						}
 					</Input>
-					<Button className="offset-md-1" type="button" id="addModule" onClick={() => setMod(!modToggle)}>{modToggle ? <img src={Minus} /> : <img src={Plus} />}</Button>
+					<Button className="offset-md-1" type="button" id="addModule" onClick={() => setMod(!modToggle)}>{modToggle ? <FiMinus /> : <FiPlus />}</Button>
 				</FormGroup>
 				{modToggle ?
 					<FormGroup className="row">

@@ -8,6 +8,7 @@ import {
   NavItem,
   NavLink,
   UncontrolledDropdown,
+  Dropdown,
   DropdownToggle,
   DropdownMenu,
   DropdownItem,
@@ -24,15 +25,17 @@ import {
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import { logIn, logOut } from "../redux/actioncreators/authActions";
-import Search from "../images/icons/search.svg";
-import User from "../images/icons/user.svg";
-import UserDrop from "../images/icons/user-drop.svg";
-import Stats from "../images/icons/stats.svg";
-import Settings from "../images/icons/settings.svg";
+import Avatar from "../images/avatar.svg";
+import { FiMail, FiLock, FiChevronUp, FiChevronDown, FiSliders, FiPieChart, FiLogOut, FiLogIn, FiSearch, FiX } from "react-icons/fi";
+import { GoCommentDiscussion } from "react-icons/go"
 import '../App.css';
+import { findRenderedDOMComponentWithClass } from "react-dom/test-utils";
 
 
 const UserLogged = (props) => {
+
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const toggle = () => setDropdownOpen(prevState => !prevState);
 
   const username = props.profile.firstname
 
@@ -43,15 +46,18 @@ const UserLogged = (props) => {
 
   return (
     <Nav pills>
-      <UncontrolledDropdown nav inNavbar>
-        <DropdownToggle id="user-name" nav><img id="user-avatar-icon" src={User} /> {username} <img src={UserDrop} /></DropdownToggle>
+      <Dropdown nav isOpen={dropdownOpen} toggle={toggle} inNavbar>
+        <DropdownToggle id="user-name" nav>
+          {username}
+          {dropdownOpen ? <FiChevronUp /> : <FiChevronDown />}
+        </DropdownToggle>
         <DropdownMenu id="user-drop" right>
-          <DropdownItem id="stats-btn"><img src={Stats} id="stats-icon" />Stats</DropdownItem>
-          <DropdownItem id="settings-btn"><img src={Settings} id="settings-icon" />Settings</DropdownItem>
+          <DropdownItem id="stats-btn"><FiPieChart id="stats-icon" />Stats</DropdownItem>
+          <DropdownItem id="settings-btn"><FiSliders id="settings-icon" />Settings</DropdownItem>
           <DropdownItem divider />
-          <DropdownItem id="logout-btn" onClick={handleLogout}><svg xmlns="http://www.w3.org/2000/svg" id="logout-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e84545" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather feather-log-out"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>Logout</DropdownItem>
+          <DropdownItem id="logout-btn" onClick={handleLogout}><FiLogOut id="logout-icon" />Logout</DropdownItem>
         </DropdownMenu>
-      </UncontrolledDropdown >
+      </Dropdown>
     </Nav >
   );
 }
@@ -60,15 +66,17 @@ const UserLogged = (props) => {
 //Modal popup for Login
 const LoginModal = (props) => {
 
-  // const onClosed = props; // will have a function that will exectute on model close
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
   const [email, setEmail] = useState(null);
   const [password, setPass] = useState(null);
+  const [isEmailFocus, setEmailFocus] = useState(false)
+  const [isPassFocus, setPassFocus] = useState(false)
+  const closeBtn = <button className="close" onClick={toggle}><FiX /></button>;
+
 
   const handleEmailChange = (e) => {
     console.log("Change of field")
-    // console.log(e.target.value);
     setEmail({
       email: e.target.value
     })
@@ -87,31 +95,57 @@ const LoginModal = (props) => {
     console.log({ mail, pass });
     props.logIn({ mail, pass })
     toggle()
-    // console.log(state);
+  }
+
+  const handleEmailOnBlur = (e) => {
+    if (e.target.value === "") {
+      setEmailFocus(false)
+    }
+  }
+  const handlePassOnBlur = (e) => {
+    if (e.target.value === "") {
+      setPassFocus(false)
+    }
   }
 
   return (
-    <div style={{ marginLeft: "auto", marginRight: 0 }}>
-      <Button style={{ backgroundColor: "blueviolet", color: "white" }} onClick={toggle}>Login</Button>
-      <Modal isOpen={modal} toggle={toggle} className="Login">
-        <ModalHeader toggle={toggle}>Login</ModalHeader>
-        <ModalBody>
-          <Form onSubmit={handleSubmit}>
-            <FormGroup>
-              <Label for="login-email">Email</Label>
-              <Input type="email" name="email" id="email" placeholder="john.doe@xyz.com" onBlur={handleEmailChange} />
-            </FormGroup>
-            <FormGroup>
-              <Label for="login-password">Password</Label>
-              <Input type="password" name="password" id="password" placeholder="*********" onBlur={handlePasswordChange} />
-            </FormGroup>
-          </Form>
-        </ModalBody>
-        <ModalFooter>
-          <Button type="submit" style={{ backgroundColor: "blueviolet", color: "white" }} onClick={handleSubmit} id="login">Login</Button>{' '}
-          <Button style={{ backgroundColor: "grey", color: "white" }} onClick={toggle}>Cancel</Button>
-        </ModalFooter>
-      </Modal>
+    <div style={{ marginLeft: "auto", marginRight: "30px" }}>
+      <Button className="login-header-btn" onClick={toggle}>Login</Button>
+      <div className="Modal-Container">
+        <Modal isOpen={modal} toggle={toggle} id="loginModal">
+          <ModalHeader toggle={toggle} close={closeBtn} className="loginModal-header">
+            <h2>Login</h2>
+          </ModalHeader>
+          <ModalBody className="login-content">
+            <Form onSubmit={handleSubmit}>
+              <img src={Avatar} width="70px" />
+              <FormGroup>
+                <div className={"input-div email " + (isEmailFocus ? "focus" : "")}>
+                  <div className="i">
+                    <FiMail size="20" stroke-width="1.5" />
+                  </div>
+                  <div className="div">
+                    <h5>Email</h5>
+                    <input type="email" name="email" className="login-fields" onClick={() => setEmailFocus(true)} onBlur={handleEmailOnBlur} onChange={handleEmailChange} />
+                  </div>
+                </div>
+              </FormGroup>
+              <FormGroup>
+                <div className={"input-div pass " + (isPassFocus ? "focus" : "")}>
+                  <div className="i">
+                    <FiLock size="20" stroke="currentColor" stroke-width="1.5" />
+                  </div>
+                  <div className="div" >
+                    <h5>Password</h5>
+                    <input type="password" name="password" className="login-fields" onChange={handlePasswordChange} onClick={() => setPassFocus(true)} onBlur={handlePassOnBlur} />
+                  </div>
+                </div>
+              </FormGroup>
+              <Button type="submit" onClick={handleSubmit} id="login-btn"><FiLogIn /> &nbsp;Login</Button>{' '}
+            </Form>
+          </ModalBody>
+        </Modal>
+      </div>
     </div >
   );
 }
@@ -120,7 +154,6 @@ function Header(props) {
 
   const [isOpen, setIsOpen] = useState(false);
   const toggle = () => setIsOpen(!isOpen);
-  // console.log(props);
   return (
     <Navbar color="light" light expand="md">
       <NavbarBrand><Link to="/">Eduteur</Link></NavbarBrand>
@@ -134,14 +167,14 @@ function Header(props) {
                 <NavLink className="nav-links active"><Link to="/subject">Subject</Link></NavLink>
               </NavItem>
               <NavItem>
-                <NavLink className="nav-links"><Link to="/discuss">Discuss</Link></NavLink>
+                <NavLink className="nav-links"><Link to="/discuss"><GoCommentDiscussion />Discuss</Link></NavLink>
               </NavItem>
             </Nav>
             <div class="search">
               <div class="search_bar"></div>
               <input type="text" name="search here" class="search_placeholder" placeholder="Search here..." />
               <div class="search_icon_space">
-                <img src={Search} />
+                <FiSearch />
               </div>
             </div>
             <UserLogged logOut={props.logOut} profile={props.profile}></UserLogged>

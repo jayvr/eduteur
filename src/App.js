@@ -7,6 +7,7 @@ import Discuss from "./components/discussComponent";
 import Header from "./components/headerComponent";
 import Landing from "./components/landingComponent";
 import Upload from "./components/uploadComponent";
+import Video from "./components/videoComponent";
 
 
 function App() {
@@ -20,7 +21,7 @@ function App() {
           <Route path="/subject" component={Subject} />
           <Route path="/discuss" component={Discuss} />
           <Route path="/upload" component={Upload} />
-
+          <Route path="/video" component={Video} />
         </Switch>
       </div>
     </Router>
