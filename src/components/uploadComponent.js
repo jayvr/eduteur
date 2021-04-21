@@ -22,7 +22,7 @@ import { FiPlus, FiMinus, FiChevronUp, FiChevronDown } from "react-icons/fi"
 import "../App.css";
 
 function Upload(props) {
-	const [subjectItems, setSubjectItems] = useState(props.profile.subjects);
+	const [subjectItems, setSubjectItems] = useState(() => { const prof = props.profile.subjects; return prof });
 	const [moduleItems, setModuleItems] = useState([{ id: "0", name: "select the subject" }]);
 	const [formData, setformData] = useState({
 		title: "",
@@ -37,7 +37,7 @@ function Upload(props) {
 		isNewModule: false,
 	})
 	const [selectedSubject, setSelectedSubject] = useState("Subjects");
-	// const [selectedSubject, setSelectedSubject] = useState("Subjects");
+	const [selectedModule, setSelectedModule] = useState("Modules");
 	const [isFirstModule, setFirstModule] = useState(false)
 	const [video, setVideo] = useState(null)
 	const [file, setFile] = useState(null)
@@ -59,22 +59,15 @@ function Upload(props) {
 		const toggle = () => setDropdownOpen(prevState => !prevState);
 
 		const fetcher = (e) => {
-			// console.log("inside fetcher")
-			// if (props.fetch == "subjects") {
-			// 	// subject
-			// } else if (props.fetch == "modules") {
-			// 	// modules
-			// 	setSelectedSubject(e.target.value)
-			// 	fetchModules(e.target.value)
-			// 	// console.log("inside fetcher" + e.target.value)
-			// } else if (props.fetch == "topics") {
-			// 	// topic
-			// 	setSelectedModule(e.target.value)
-			// 	setTopicItems([]);
-			// 	fetchTopics(e.target.value)
-			// } else {
-			// 	// DO Nothing
-			// }
+			console.log("inside fetcher")
+			if (props.from === "subject") {
+				handleSubject(e)
+			} else if (props.from === "module") {
+				handleModule(e)
+			}
+		}
+		const AddNewMod = () => {
+			// do code for adding new mod
 		}
 
 		return (
@@ -84,10 +77,14 @@ function Upload(props) {
 					{dropdownOpen ? <FiChevronUp /> : <FiChevronDown />}
 				</DropdownToggle>
 				<DropdownMenu id="subject-drop">
-					{
+					{items &&
 						items.map((item, index) => (
-							<DropdownItem key={index} value={item.name} onClick={fetcher} >{item.name}</DropdownItem>
+							<DropdownItem key={index} id={index} value={item.name} onClick={fetcher} >{item.name}</DropdownItem>
 						))
+
+					}
+					{
+						props.from === "module" ? <DropdownItem key={"001"} onClick={AddNewMod} >Add New Module</DropdownItem> : <></>
 					}
 				</DropdownMenu>
 			</Dropdown>
@@ -96,8 +93,7 @@ function Upload(props) {
 	// extract the modules form the selected subject field
 	const handleSubject = (e) => {
 		const index = e.target.id;
-		const path = e.target.value;
-		setSelectedSubject(e.target.name);
+		setSelectedSubject(e.target.value);
 
 		setformData({
 			...formData,
@@ -105,6 +101,9 @@ function Upload(props) {
 			branch: subjectItems[index].branch,
 			sem: "sem" + subjectItems[index].sem,
 		})
+
+		const college = props.profile.college;
+		const path = `${college}/${formData.sem}/${formData.branch}/${e.target.value}`;
 
 		firestore.doc(path).get()
 			.then((doc) => {
@@ -123,6 +122,8 @@ function Upload(props) {
 
 	// Update modules in put formData state when a module is selected
 	const handleModule = (e) => {
+
+		setSelectedModule(e.target.value)
 		setformData({
 			...formData,
 			module: e.target.value,
@@ -284,10 +285,11 @@ function Upload(props) {
 				<h1 id="form-heading">Upload Module / Materials</h1>
 				<hr />
 				<FormGroup className=" row offset-md-3">
-					<DropdownBtn header={selectedSubject} items={subjectItems} required data-error="Subject is Required." />
+					<DropdownBtn header={selectedSubject} items={subjectItems} from="subject" required data-error="Subject is Required." />
+					<DropdownBtn header={selectedModule} items={moduleItems} from="module" required data-error="module is Required." />
 				</FormGroup>
-				<FormGroup className="row">
-					<Label for="selectModule" className="col-md-3">Module</Label>
+				{/* <FormGroup className="row offset-md-3">
+						<Label for="selectModule" className="col-md-3">Module</Label>
 					<Input type="select" className="col-md-6" id="module" name="module" onChange={handleModule} required="true">
 						<option value="" disabled selected>Select Module</option>
 						{
@@ -299,8 +301,8 @@ function Upload(props) {
 						}
 					</Input>
 					<Button className="offset-md-1" type="button" id="addModule" onClick={() => setMod(!modToggle)}>{modToggle ? <FiMinus /> : <FiPlus />}</Button>
-				</FormGroup>
-				{modToggle ?
+				</FormGroup> */}
+				{/* {modToggle ?
 					<FormGroup className="row">
 						<Input
 							className="offset-md-3 col-md-8"
@@ -310,7 +312,7 @@ function Upload(props) {
 							placeholder="Add new Module"
 							onChange={addModule}
 						/>
-					</FormGroup> : <span></span>}
+					</FormGroup> : <span></span>} */}
 				<FormGroup className="row">
 					<Label for="title" className="col-md-3">
 						Title
@@ -385,7 +387,7 @@ function Upload(props) {
 				</div>
 				<hr />
 			</Container>
-		</Form>
+		</Form >
 		// </ProfileIsLoaded>
 	);
 

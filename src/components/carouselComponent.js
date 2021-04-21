@@ -14,7 +14,6 @@ function Item(props) {
     const handleClick = () => {
         console.log(data)
         props.center(index)
-        // props.fetcher(data, index)
     }
 
     return (
@@ -55,13 +54,8 @@ function Carousel(props) {
     //     setTouchPosition(null)
     // }
 
-    const selectedData = (data, index) => {
-        // setNewActive(index);
-        props.fetch(data, index)
-    }
 
     const setNewActive = (act) => {
-        console.log("act: " + act)
         setActive(act)
 
         if (act === 0) {
@@ -72,12 +66,10 @@ function Carousel(props) {
             setLeftEnd(false)
             setRightEnd(false)
         }
-
         props.fetch(act)
     }
 
     const generateItems = () => {
-        console.log("active: " + active)
         var newItems = []
         var level
 
@@ -95,7 +87,7 @@ function Carousel(props) {
                 break
             }
             level = active - i
-            newItems.push(<Item key={index} index={index} id={items[index].id} level={level} data={items[index]} fetcher={selectedData} center={setNewActive} />)
+            newItems.push(<Item key={index} index={index} id={items[index].id} level={level} data={items[index]} center={setNewActive} />)
         }
         return newItems
     }

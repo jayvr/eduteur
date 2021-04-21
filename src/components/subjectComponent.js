@@ -37,13 +37,19 @@ function Subject(props) {
     const [selectedTopic, setSelectedTopic] = useState("Topics");
     const [topicPath, setTopicPath] = useState("");
     const [videoData, setVideoData] = useState({});
+    const [active, setActive] = useState(0);
 
     let res = null;
-    let active = 0;
 
-
+    // firestore variables
     const firestore = getFirestore();
     const firebase = useFirebase();
+
+
+    useEffect(() => {
+        fetchSubject()
+    }, [])
+
 
     const DropdownBtn = (props) => {
         const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -145,7 +151,8 @@ function Subject(props) {
         const name = subjectItems[id].name;
         // const id = props.index;
         setSelectedSubject(name)
-        active = id;
+        // active = id;
+        setActive(id)
         console.log("active in subject: " + active)
         const path = `${userData.college}/sem${userData.sem}/${userData.branch}/${name}`
         console.log("Module path: " + path)
@@ -186,10 +193,6 @@ function Subject(props) {
         setTopicItems(data)
     }
 
-
-    useEffect(() => {
-        fetchSubject()
-    }, [])
 
 
     // display loding until user is profiled
