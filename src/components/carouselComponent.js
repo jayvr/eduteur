@@ -1,92 +1,143 @@
-import React from "react";
-import "../App.css";
+import React, { useState } from "react";
+import '../carousel.css';
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
-//var ReactCSSTransitionGroup = React.addons.CSSTransitionGroup;
 
-class Carousel extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            items: this.props.items,
-            active: this.props.active,
-            direction: ""
-        };
-        this.rightClick = this.moveRight.bind(this);
-        this.leftClick = this.moveLeft.bind(this);
+function Item(props) {
+    const [level, setLevel] = useState(props.level)
+    const [id, setID] = useState(props.id)
+    const [data, setData] = useState(props.data)
+    const [index, setIndex] = useState(props.index)
+
+    const className = 'item level' + props.level
+
+    const handleClick = () => {
+        console.log(data)
+        props.center(index)
+        // props.fetcher(data, index)
     }
 
-    generateItems() {
-        var items = [];
-        var level;
-        console.log(this.state.active);
-        for (var i = this.state.active - 2; i < this.state.active + 3; i++) {
-            var index = i;
-            if (i < 0) {
-                index = this.state.items.length + i;
-            } else if (i >= this.state.items.length) {
-                index = i % this.state.items.length;
-            }
-            level = this.state.active - i;
-            items.push(
-                <Item key={index} id={this.state.items[index]} level={level} />
-            );
-        }
-        return items;
-    }
-
-    moveLeft() {
-        var newActive = this.state.active;
-        newActive--;
-        this.setState({
-            active: newActive < 0 ? this.state.items.length - 1 : newActive,
-            direction: "left"
-        });
-    }
-
-    moveRight() {
-        var newActive = this.state.active;
-        this.setState({
-            active: (newActive + 1) % this.state.items.length,
-            direction: "right"
-        });
-    }
-
-    render() {
-        return (
-            <div id="carousel" className="noselect">
-                <div className="arrow arrow-left" onClick={this.leftClick}>
-                    <i className="fi-arrow-left"></i>
-                </div>
-                {/* <ReactCSSTransitionGroup transitionName={this.state.direction}> */}
-                {this.generateItems()}
-                {/* {this.state.items} */}
-                {/* </ReactCSSTransitionGroup> */}
-                <div className="arrow arrow-right" onClick={this.rightClick}>
-                    <i className="fi-arrow-right"></i>
-                </div>
-            </div>
-        );
-    }
+    return (
+        <div className={className} onClick={handleClick}>
+            {data.name}
+        </div>
+    )
 }
 
-class Item extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            level: this.props.level
-        };
+
+function Carousel(props) {
+
+    const [items, setItems] = useState(props.items)
+    const [active, setActive] = useState(props.active)
+    const [direction, setDirection] = useState("")
+    const [isLeftEnd, setLeftEnd] = useState(true)
+    const [isRightEnd, setRightEnd] = useState(false)
+    // const [touchPosition, setTouchPosition] = useState(null)
+
+    // const handleTouchStart = (e) => {
+    //     const touchDown = e.touches[0].clientX
+    //     setTouchPosition(touchDown)
+    // }
+
+    // const handleTouchMove = (e) => {
+    //     const touchDown = touchPosition
+    //     if (touchDown === null) {
+    //         return
+    //     }
+    //     const currentTouch = e.touches[0].clientX
+    //     const diff = touchDown - currentTouch
+    //     if (diff > 20) {
+    //         moveRight()
+    //     }
+    //     if (diff < -20) {
+    //         moveLeft()
+    //     }
+    //     setTouchPosition(null)
+    // }
+
+    const selectedData = (data, index) => {
+        // setNewActive(index);
+        props.fetch(data, index)
     }
 
-    render() {
-        const className = "item level" + this.props.level;
-        return <div className={className}>{this.props.id}</div>;
+    const setNewActive = (act) => {
+        console.log("act: " + act)
+        setActive(act)
+
+        if (act === 0) {
+            setLeftEnd(true)
+        } else if (act === items.length - 1) {
+            setRightEnd(true)
+        } else {
+            setLeftEnd(false)
+            setRightEnd(false)
+        }
+
+        props.fetch(act)
     }
+
+    const generateItems = () => {
+        console.log("active: " + active)
+        var newItems = []
+        var level
+
+        for (var i = active - 2; i < active + 3; i++) {
+            var index = i
+            if (i < -1) {
+                i += 2
+                index = i
+            } else if (i < 0) {
+                i++
+                index = i
+            }
+            else if (i >= items.length) {
+                index = items.length - 1
+                break
+            }
+            level = active - i
+            newItems.push(<Item key={index} index={index} id={items[index].id} level={level} data={items[index]} fetcher={selectedData} center={setNewActive} />)
+        }
+        return newItems
+    }
+
+    const moveLeft = () => {
+        var newActive = active
+        newActive--
+        if (newActive === 0) {
+            setLeftEnd(true)
+        } else {
+            setRightEnd(false)
+        }
+        const currentActive = newActive < 0 ? 0 : newActive
+        setActive(currentActive)
+        setDirection("left")
+
+    }
+
+    const moveRight = () => {
+        var newActive = active + 1
+        if (newActive === items.length - 1) {
+            setRightEnd(true)
+        } else {
+            setLeftEnd(false)
+        }
+        const currentActive = (newActive) >= items.length - 1 ? items.length - 1 : newActive
+        setActive(currentActive)
+        setDirection("right")
+    }
+    // onTouchStart={handleTouchStart} onTouchMove={handleTouchMove}
+    return (
+        <div id="carousel" className="noselect car-container">
+
+            <div className={"arrow arrow-left " + (isLeftEnd ? "end" : "")} onClick={moveLeft}><FiChevronLeft /></div>
+            {/* <ReactCSSTransitionGroup */}
+            {/* transitionName={this.state.direction}> */}
+            {generateItems()}
+            {/* </ReactCSSTransitionGroup> */}
+            <div className={"arrow arrow-right " + (isRightEnd ? "end" : "")} onClick={moveRight}><FiChevronRight /></div>
+
+        </div>
+    )
 }
 
 export default Carousel;
-
-// var items = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-// ReactDOM.render(
-//     <Carousel items={items} active={0} />,
-//     document.getElementById("app")
-// );

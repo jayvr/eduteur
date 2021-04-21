@@ -110,7 +110,7 @@ const LoginModal = (props) => {
 
   return (
     <div style={{ marginLeft: "auto", marginRight: "30px" }}>
-      <Button className="login-header-btn" onClick={toggle}>Login</Button>
+      <Button className="login-header-btn" onClick={toggle}><FiLogIn style={{ marginRight: "10px" }} />Login</Button>
       <div className="Modal-Container">
         <Modal isOpen={modal} toggle={toggle} id="loginModal">
           <ModalHeader toggle={toggle} close={closeBtn} className="loginModal-header">
@@ -126,7 +126,7 @@ const LoginModal = (props) => {
                   </div>
                   <div className="div">
                     <h5>Email</h5>
-                    <input type="email" name="email" className="login-fields" onClick={() => setEmailFocus(true)} onBlur={handleEmailOnBlur} onChange={handleEmailChange} />
+                    <input type="email" name="email" className="login-fields" onKeyDown={() => setEmailFocus(true)} onClick={() => setEmailFocus(true)} onBlur={handleEmailOnBlur} onChange={handleEmailChange} />
                   </div>
                 </div>
               </FormGroup>
@@ -137,7 +137,7 @@ const LoginModal = (props) => {
                   </div>
                   <div className="div" >
                     <h5>Password</h5>
-                    <input type="password" name="password" className="login-fields" onChange={handlePasswordChange} onClick={() => setPassFocus(true)} onBlur={handlePassOnBlur} />
+                    <input type="password" name="password" className="login-fields" onKeyPress={() => setPassFocus(true)} onChange={handlePasswordChange} onClick={() => setPassFocus(true)} onBlur={handlePassOnBlur} />
                   </div>
                 </div>
               </FormGroup>

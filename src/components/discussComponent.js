@@ -29,7 +29,7 @@ const DropdownBtn = (props) => {
 }
 
 const AskQue = (props) => {
-    const [isOpen, setIsOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState(true);
     const toggle = () => setIsOpen(!isOpen);
     const closeCard = () => setIsOpen(false)
 
@@ -41,10 +41,10 @@ const AskQue = (props) => {
                         <div className="askques-card-heading" onClick={toggle} style={{
                             cursor: "pointer",
                         }}>
-                            <h3 color="primary" style={{ marginBottom: '1rem' }}>Ask Question</h3>
+                            <h3 color="primary">Ask Question</h3>
                         </div>
                         {isOpen ?
-                            <div className="col-4">
+                            <div className="col-md-4">
                                 <Input type="reset" value="Reset" />
                             </div> : <> </>}
                     </CardHeader>

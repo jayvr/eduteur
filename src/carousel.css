@@ -1,0 +1,170 @@
+@import url("https://fonts.googleapis.com/css?family=Raleway");
+body {
+  background-color: #eee;
+  font-family: "Raleway";
+}
+
+#carousel {
+  /* position: absolute; */
+  /* height: 34%; */
+  /* width: 90%; */
+  margin: 0 auto;
+  /* left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0; */
+  border-radius: 25px;
+  /*background-image: linear-gradient(
+    0deg,
+    rgba(205, 15, 255, 0.3) 0%,
+    rgba(158, 6, 255, 0.2) 100%
+  );*/
+  /* background-color: #f0c8fa; */
+}
+
+.car-container {
+  background-image: linear-gradient(
+    0deg,
+    rgba(205, 15, 255, 0.3) 0%,
+    rgba(158, 6, 255, 0.2) 100%
+  );
+  height: 13em;
+}
+
+.arrow {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  cursor: pointer;
+  font-size: 20px;
+  margin: 4.3em 5%;
+  z-index: 1000;
+}
+
+.arrow.end:hover {
+  box-shadow: 0 0 10px #ef233c;
+  cursor: not-allowed;
+}
+
+.arrow:hover {
+  transform: scale(1.4);
+  transition: 0.3s ease-in-out;
+  border-radius: 25px;
+  box-shadow: 0 0 10px #52b788;
+}
+
+.arrow-right {
+  float: right;
+  right: 0;
+}
+
+.item {
+  text-align: center;
+  color: #111;
+  font-size: 2.5em;
+  text-transform: uppercase;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #1c1c1d;
+  box-shadow: 0px 5px 0px #202020;
+  border-radius: 10px;
+  margin: 0.6em;
+}
+
+.item:hover {
+  cursor: pointer;
+}
+
+.level2 {
+  height: 5em;
+  width: 9%;
+  line-height: 80px;
+  font-size: 1em;
+  font-weight: 700;
+  color: #003049;
+  background-color: #ffbc12;
+  margin-top: 4em;
+  margin-left: 9.7%;
+  opacity: 0.4;
+}
+
+.level1 {
+  height: 3.75em;
+  width: 16%;
+  font-size: 2em;
+  color: #d9e5d6;
+  background-color: #fa6648;
+  margin-top: 1.3em;
+  margin-left: 20.3%;
+  opacity: 0.7;
+}
+
+.level0 {
+  height: 4em;
+  width: 23%;
+  line-height: 180px;
+  color: #111;
+  background-color: #4895ef;
+  margin-left: 37.8%;
+  transition: height 0.1s, line-height 0.5s, margin-top 0.5s;
+}
+
+.level-1 {
+  height: 3.75em;
+  width: 16%;
+  line-height: 120px;
+  font-size: 2em;
+  color: #d9e5d6;
+  background-color: #fa6648;
+  margin-top: 1.3em;
+  margin-left: 62.3%;
+  opacity: 0.7;
+}
+
+.level-2 {
+  height: 5em;
+  width: 9%;
+  line-height: 80px;
+  font-size: 1em;
+  font-weight: 700;
+  color: #003049;
+  background-color: #ffbc12;
+  margin-left: 80%;
+  margin-top: 4em;
+  opacity: 0.4;
+}
+
+.noselect {
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/*@media only screen and (max-width: 1200px) {
+  #carousel {
+    height: 17%;
+  }
+
+  .level-1,
+  .level-2,
+  .level1,
+  .level2 {
+    opacity: 0;
+  }
+
+  .level0 {
+    width: 60%;
+    margin-left: 20%;
+    margin-top: 5%;
+  }
+
+  .arrow {
+    margin: 5em 5%;
+  }
+}
+*/

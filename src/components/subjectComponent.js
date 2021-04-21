@@ -6,6 +6,7 @@ import { useFirebase, isLoaded } from 'react-redux-firebase';
 import { connect, useSelector } from 'react-redux';
 import { Link, Route, useParams, useRouteMatch } from "react-router-dom";
 import Loading from "./LoadingComponent";
+import Carousel from "./carouselComponent"
 
 
 
@@ -38,6 +39,7 @@ function Subject(props) {
     const [videoData, setVideoData] = useState({});
 
     let res = null;
+    let active = 0;
 
 
     const firestore = getFirestore();
@@ -137,7 +139,14 @@ function Subject(props) {
         }).catch((error) => console.log(error))
     }
 
-    const fetchModules = (name) => {
+    const fetchModules = (id) => {
+
+        console.log("props in subject: " + id)
+        const name = subjectItems[id].name;
+        // const id = props.index;
+        setSelectedSubject(name)
+        active = id;
+        console.log("active in subject: " + active)
         const path = `${userData.college}/sem${userData.sem}/${userData.branch}/${name}`
         console.log("Module path: " + path)
         firestore.doc(path).get()
@@ -196,13 +205,15 @@ function Subject(props) {
 
     return (
         <ProfileIsLoaded>
-            <Container style={{ marginTop: "100px" }}>
+            <Container style={{ marginTop: "4em" }}>
                 <br />
-                <Row className="justify-content-around">
-                    <div className="subject col-sm-4 col-md-1">
-                        <DropdownBtn header={selectedSubject} items={subjectItems} fetch="modules" />
+                <Row>
+                    <div className="col-12">
+                        <Carousel items={subjectItems} active={active} fetch={fetchModules} />
                     </div>
-                    <div className="module col-sm-4 offset-md-1 col-md-1">
+                </Row>
+                <Row className="justify-content-around">
+                    <div className="module col-sm-4 col-md-1">
                         <DropdownBtn header={selectedModule} items={moduleItems} fetch="topics" />
                     </div>
                     {/* <div className="module col-sm-4 offset-md-1 col-md-1">
