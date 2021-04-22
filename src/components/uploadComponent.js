@@ -13,7 +13,11 @@ import {
 	Label,
 	Button,
 	CustomInput,
-	Progress
+	Progress,
+	Modal,
+	ModalBody,
+	ModalFooter,
+	ModalHeader
 } from 'reactstrap';
 import { getFirestore } from 'redux-firestore';
 import { useFirebase, isLoaded } from 'react-redux-firebase';
@@ -25,6 +29,7 @@ function Upload(props) {
 	const [subjectItems, setSubjectItems] = useState(() => { const prof = props.profile.subjects; return prof });
 	const [moduleItems, setModuleItems] = useState([{ id: "0", name: "select the subject" }]);
 	const [formData, setformData] = useState({
+		college: props.profile.college,
 		title: "",
 		desc: "",
 		module: "",
@@ -38,7 +43,9 @@ function Upload(props) {
 	})
 	const [selectedSubject, setSelectedSubject] = useState("Subjects");
 	const [selectedModule, setSelectedModule] = useState("Modules");
-	const [isFirstModule, setFirstModule] = useState(false)
+	const [isFirstModule, setFirstModule] = useState(false);
+	const [newModule, setNewModule] = useState({ name: "", id: 1 });
+
 	const [video, setVideo] = useState(null)
 	const [file, setFile] = useState(null)
 
@@ -51,49 +58,92 @@ function Upload(props) {
 	const firebase = useFirebase();
 	const firestore = getFirestore();
 
+
 	const DropdownBtn = (props) => {
-		const [dropdownOpen, setDropdownOpen] = useState(false);
 		const [items, setItems] = useState(props.items);
 		const [header, setHeader] = useState(props.header);
 
+		const [dropdownOpen, setDropdownOpen] = useState(false);
 		const toggle = () => setDropdownOpen(prevState => !prevState);
+
+		// const [modal, setModal] = useState(false);
+		// const modToggle = () => setModal(prevState => !prevState);
+
+		const addModule = (e) => {
+			console.log("New Module:" + e.target.value)
+			setNewModule({
+				name: e.target.value,
+				id: isFirstModule ? 1 : moduleItems.length + 1
+			});
+		}
+
+		const uploadMod = (e) => {
+			e.preventDefault()
+			console.log("inside upload module")
+			const path = `${formData.college}/${formData.sem}/${formData.branch}`
+			console.log(path)
+			console.log("Updating module MBR")
+			firestore.collection(`${path}`).doc(`${formData.subject}`).set({
+				modules: firebase.firestore.FieldValue.arrayUnion({
+					id: newModule.id,
+					name: newModule.name
+				})
+			}, { merge: true }).then(() => {
+				console.log("Modules updated")
+				modToggle()
+			})
+		}
 
 		const fetcher = (e) => {
 			console.log("inside fetcher")
 			if (props.from === "subject") {
+				setSelectedSubject(e.target.value);
 				handleSubject(e)
 			} else if (props.from === "module") {
 				handleModule(e)
 			}
 		}
-		const AddNewMod = () => {
-			// do code for adding new mod
-		}
+
 
 		return (
-			<Dropdown isOpen={dropdownOpen} toggle={toggle}>
-				<DropdownToggle id="subject-toggle">
-					{header}
-					{dropdownOpen ? <FiChevronUp /> : <FiChevronDown />}
-				</DropdownToggle>
-				<DropdownMenu id="subject-drop">
-					{items &&
-						items.map((item, index) => (
-							<DropdownItem key={index} id={index} value={item.name} onClick={fetcher} >{item.name}</DropdownItem>
-						))
+			<>
+				<Dropdown isOpen={dropdownOpen} toggle={toggle}>
+					<DropdownToggle id="subject-toggle">
+						{header}
+						{dropdownOpen ? <FiChevronUp /> : <FiChevronDown />}
+					</DropdownToggle>
+					<DropdownMenu id="subject-drop">
+						{
+							selectedSubject != "Subjects" && props.from === "module" ? <DropdownItem style={{ backgroundColor: "lightpink" }} key={"001"} onClick={() => setMod(!modToggle)} ><FiPlus /> Add New Module</DropdownItem> : <></>
+						}
+						{items &&
+							items.map((item, index) => (
+								<DropdownItem key={index} id={index} value={item.name} onClick={fetcher} >{item.name}</DropdownItem>
+							))
 
-					}
-					{
-						props.from === "module" ? <DropdownItem key={"001"} onClick={AddNewMod} >Add New Module</DropdownItem> : <></>
-					}
-				</DropdownMenu>
-			</Dropdown>
+						}
+
+					</DropdownMenu>
+				</Dropdown>
+				{/* <Modal isOpen={modal} fade={false} toggle={modToggle} trapFocus={true}>
+					<Form>
+						<ModalHeader toggle={modToggle}>New Module</ModalHeader>
+						<ModalBody>
+							<Input type="text" name="newMod"
+								id="newMod" placeholder="New Module Here.." onBlur={addModule} />
+						</ModalBody>
+						<ModalFooter>
+							<Button color="primary" onClick={(e) => uploadMod(e)}>Add it!</Button>{' '}
+							<Button color="secondary" onClick={modToggle}>Cancel</Button>
+						</ModalFooter>
+					</Form>
+				</Modal> */}
+			</>
 		)
 	}
 	// extract the modules form the selected subject field
 	const handleSubject = (e) => {
 		const index = e.target.id;
-		setSelectedSubject(e.target.value);
 
 		setformData({
 			...formData,
@@ -302,7 +352,7 @@ function Upload(props) {
 					</Input>
 					<Button className="offset-md-1" type="button" id="addModule" onClick={() => setMod(!modToggle)}>{modToggle ? <FiMinus /> : <FiPlus />}</Button>
 				</FormGroup> */}
-				{/* {modToggle ?
+				{modToggle ?
 					<FormGroup className="row">
 						<Input
 							className="offset-md-3 col-md-8"
@@ -312,7 +362,7 @@ function Upload(props) {
 							placeholder="Add new Module"
 							onChange={addModule}
 						/>
-					</FormGroup> : <span></span>} */}
+					</FormGroup> : <span></span>}
 				<FormGroup className="row">
 					<Label for="title" className="col-md-3">
 						Title
@@ -365,7 +415,6 @@ function Upload(props) {
 						type="file"
 						id="add-file"
 						name="file"
-						multiple="true"
 						label="Yo, pick a file!"
 						onChange={handleFile}
 					/>
