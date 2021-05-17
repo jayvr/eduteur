@@ -69,30 +69,30 @@ function Upload(props) {
 		// const [modal, setModal] = useState(false);
 		// const modToggle = () => setModal(prevState => !prevState);
 
-		const addModule = (e) => {
-			console.log("New Module:" + e.target.value)
-			setNewModule({
-				name: e.target.value,
-				id: isFirstModule ? 1 : moduleItems.length + 1
-			});
-		}
+		// const addModule = (e) => {
+		// 	console.log("New Module:" + e.target.value)
+		// 	setNewModule({
+		// 		name: e.target.value,
+		// 		id: isFirstModule ? 1 : moduleItems.length + 1
+		// 	});
+		// }
 
-		const uploadMod = (e) => {
-			e.preventDefault()
-			console.log("inside upload module")
-			const path = `${formData.college}/${formData.sem}/${formData.branch}`
-			console.log(path)
-			console.log("Updating module MBR")
-			firestore.collection(`${path}`).doc(`${formData.subject}`).set({
-				modules: firebase.firestore.FieldValue.arrayUnion({
-					id: newModule.id,
-					name: newModule.name
-				})
-			}, { merge: true }).then(() => {
-				console.log("Modules updated")
-				modToggle()
-			})
-		}
+		// const uploadMod = (e) => {
+		// 	e.preventDefault()
+		// 	console.log("inside upload module")
+		// 	const path = `${formData.college}/${formData.sem}/${formData.branch}`
+		// 	console.log(path)
+		// 	console.log("Updating module MBR")
+		// 	firestore.collection(`${path}`).doc(`${formData.subject}`).set({
+		// 		modules: firebase.firestore.FieldValue.arrayUnion({
+		// 			id: newModule.id,
+		// 			name: newModule.name
+		// 		})
+		// 	}, { merge: true }).then(() => {
+		// 		console.log("Modules updated")
+		// 		modToggle()
+		// 	})
+		// }
 
 		const fetcher = (e) => {
 			console.log("inside fetcher")
@@ -106,54 +106,36 @@ function Upload(props) {
 
 
 		return (
-			<>
-				<Dropdown isOpen={dropdownOpen} toggle={toggle}>
-					<DropdownToggle id="subject-toggle">
-						{header}
-						{dropdownOpen ? <FiChevronUp /> : <FiChevronDown />}
-					</DropdownToggle>
-					<DropdownMenu id="subject-drop">
-						{
-							selectedSubject != "Subjects" && props.from === "module" ? <DropdownItem style={{ backgroundColor: "lightpink" }} key={"001"} onClick={() => setMod(!modToggle)} ><FiPlus /> Add New Module</DropdownItem> : <></>
-						}
-						{items &&
-							items.map((item, index) => (
-								<DropdownItem key={index} id={index} value={item.name} onClick={fetcher} >{item.name}</DropdownItem>
-							))
-
-						}
-
-					</DropdownMenu>
-				</Dropdown>
-				{/* <Modal isOpen={modal} fade={false} toggle={modToggle} trapFocus={true}>
-					<Form>
-						<ModalHeader toggle={modToggle}>New Module</ModalHeader>
-						<ModalBody>
-							<Input type="text" name="newMod"
-								id="newMod" placeholder="New Module Here.." onBlur={addModule} />
-						</ModalBody>
-						<ModalFooter>
-							<Button color="primary" onClick={(e) => uploadMod(e)}>Add it!</Button>{' '}
-							<Button color="secondary" onClick={modToggle}>Cancel</Button>
-						</ModalFooter>
-					</Form>
-				</Modal> */}
-			</>
+			<Dropdown isOpen={dropdownOpen} toggle={toggle}>
+				<DropdownToggle id="subject-toggle">
+					{header}
+					{dropdownOpen ? <FiChevronUp /> : <FiChevronDown />}
+				</DropdownToggle>
+				<DropdownMenu id="subject-drop">
+					{items &&
+						items.map((item, index) => (
+							<DropdownItem key={index} id={index} value={item.name} onClick={fetcher} >{item.name}</DropdownItem>
+						))
+					}
+				</DropdownMenu>
+			</Dropdown>
 		)
 	}
 	// extract the modules form the selected subject field
 	const handleSubject = (e) => {
 		const index = e.target.id;
+		const semester = "sem" + subjectItems[index].sem;
+		const branch = subjectItems[index].branch;
 
 		setformData({
 			...formData,
-			subject: e.target.name,
-			branch: subjectItems[index].branch,
-			sem: "sem" + subjectItems[index].sem,
+			subject: e.target.value,
+			branch: branch,
+			sem: semester,
 		})
 
-		const college = props.profile.college;
-		const path = `${college}/${formData.sem}/${formData.branch}/${e.target.value}`;
+		const path = `${props.profile.college}/${semester}/${branch}/${e.target.value}`;
+		console.log("path to subject: " + path)
 
 		firestore.doc(path).get()
 			.then((doc) => {
@@ -266,9 +248,8 @@ function Upload(props) {
 		console.log(video);
 		console.log(file);
 
-		const college = props.profile.college;
-		const fullpath = `${college}/${formData.sem}/${formData.branch}/${formData.subject}/${formData.module}/`;
-		const path = `${college}/${formData.sem}/${formData.branch}`
+		const fullpath = `${formData.college}/${formData.sem}/${formData.branch}/${formData.subject}/${formData.module}/`;
+		const path = `${formData.college}/${formData.sem}/${formData.branch}`
 
 		console.log(fullpath);
 		console.log(path);
@@ -309,7 +290,10 @@ function Upload(props) {
 								id: formData.moduleID,
 								name: formData.module
 							})
-						}, { merge: true }).then(() => console.log("Modules updated"))
+						}, { merge: true }).then(() => {
+							console.log("Modules updated")
+							document.getElementById("upload-form").reset();
+						})
 					}
 				}).catch((error) => {
 					console.log(error);
@@ -330,17 +314,17 @@ function Upload(props) {
 	// }
 	return (
 		// <ProfileIsLoaded>
-		<Form className="upload-form" onSubmit={handleUpload}>
+		<Form className="upload-form" id="upload-form" onSubmit={handleUpload}>
 			<Container>
 				<h1 id="form-heading">Upload Module / Materials</h1>
 				<hr />
 				<FormGroup className=" row offset-md-3">
 					<DropdownBtn header={selectedSubject} items={subjectItems} from="subject" required data-error="Subject is Required." />
-					<DropdownBtn header={selectedModule} items={moduleItems} from="module" required data-error="module is Required." />
+					{/* <DropdownBtn header={selectedModule} items={moduleItems} from="module" required data-error="module is Required." /> */}
 				</FormGroup>
-				{/* <FormGroup className="row offset-md-3">
-						<Label for="selectModule" className="col-md-3">Module</Label>
-					<Input type="select" className="col-md-6" id="module" name="module" onChange={handleModule} required="true">
+				<FormGroup className="row">
+					<Label for="selectModule" className="col-md-3">Module</Label>
+					{/* <Input type="select" className="col-md-6" id="module" name="module" onChange={handleModule} required="true">
 						<option value="" disabled selected>Select Module</option>
 						{
 							moduleItems.map((item, index) => (
@@ -350,9 +334,26 @@ function Upload(props) {
 							))
 						}
 					</Input>
-					<Button className="offset-md-1" type="button" id="addModule" onClick={() => setMod(!modToggle)}>{modToggle ? <FiMinus /> : <FiPlus />}</Button>
-				</FormGroup> */}
-				{modToggle ?
+					*/}
+					<Button className="" type="button" id="addModule" onClick={() => setMod(!modToggle)}>					{modToggle ? <FiMinus /> : <FiPlus />}
+					</Button> {" "}
+					{modToggle ?
+						// <FormGroup className="row">
+						<Input
+							className="offset-1 col-6"
+							type="text"
+							name="newMod"
+							id="newMod"
+							placeholder="Add new Module"
+							onChange={addModule}
+						/>
+						// </FormGroup>
+						:
+						<DropdownBtn header={selectedModule} items={moduleItems} from="module" required data-error="module is Required." />
+					}
+
+				</FormGroup>
+				{/* {modToggle ?
 					<FormGroup className="row">
 						<Input
 							className="offset-md-3 col-md-8"
@@ -362,7 +363,7 @@ function Upload(props) {
 							placeholder="Add new Module"
 							onChange={addModule}
 						/>
-					</FormGroup> : <span></span>}
+					</FormGroup> : <span></span>} */}
 				<FormGroup className="row">
 					<Label for="title" className="col-md-3">
 						Title
