@@ -54,6 +54,7 @@ function Upload(props) {
 
 	// const toggle = () => setDropdownOpen((prevState) => !prevState);
 	const [modToggle, setMod] = useState(false);
+	const [linkToggle, setLink] = useState(false);
 
 	const firebase = useFirebase();
 	const firestore = getFirestore();
@@ -65,6 +66,14 @@ function Upload(props) {
 
 		const [dropdownOpen, setDropdownOpen] = useState(false);
 		const toggle = () => setDropdownOpen(prevState => !prevState);
+
+		let toggleClass = "subject-toggle";
+		let toggleDrop = "subject-drop";
+
+		if (props.from === "module") {
+			toggleClass = "module-toggle";
+			toggleDrop = "module-drop";
+		}
 
 		// const [modal, setModal] = useState(false);
 		// const modToggle = () => setModal(prevState => !prevState);
@@ -107,11 +116,11 @@ function Upload(props) {
 
 		return (
 			<Dropdown isOpen={dropdownOpen} toggle={toggle}>
-				<DropdownToggle id="subject-toggle">
+				<DropdownToggle id={toggleClass}>
 					{header}
 					{dropdownOpen ? <FiChevronUp /> : <FiChevronDown />}
 				</DropdownToggle>
-				<DropdownMenu id="subject-drop">
+				<DropdownMenu id={toggleDrop}>
 					{items &&
 						items.map((item, index) => (
 							<DropdownItem key={index} id={index} value={item.name} onClick={fetcher} >{item.name}</DropdownItem>
@@ -198,7 +207,11 @@ function Upload(props) {
 
 	// store the file from file-upload field
 	const handleVideo = (e) => {
-		setVideo(e.target.files[0]);
+		if (linkToggle) {
+			setVideo(e.target.files[0]);
+		} else {
+			setVideo(e.target.value);
+		}
 	};
 	const handleFile = (e) => {
 		setFile(e.target.files[0]);
@@ -255,8 +268,14 @@ function Upload(props) {
 		console.log(path);
 
 		(async () => {
-			VideoURL = await fileUploader(fullpath, video, videoName);
-			console.log("Video URL: " + VideoURL);
+			if (linkToggle) {
+				VideoURL = await fileUploader(fullpath, video, videoName);
+				console.log("Video URL: " + VideoURL);
+			} else {
+				VideoURL = video;
+				console.log("Video URL: " + VideoURL);
+			}
+
 		})().then(async () => {
 			if (file != null) {
 				FileURL = await fileUploader(fullpath, file, fileName);
@@ -318,7 +337,8 @@ function Upload(props) {
 			<Container>
 				<h1 id="form-heading">Upload Module / Materials</h1>
 				<hr />
-				<FormGroup className=" row offset-md-3">
+				<FormGroup className=" row">
+					<Label for="selectSubject" style={{ marginTop: "20px" }} className="col-md-3">Subject</Label>
 					<DropdownBtn header={selectedSubject} items={subjectItems} from="subject" required data-error="Subject is Required." />
 					{/* <DropdownBtn header={selectedModule} items={moduleItems} from="module" required data-error="module is Required." /> */}
 				</FormGroup>
@@ -335,17 +355,21 @@ function Upload(props) {
 						}
 					</Input>
 					*/}
-					<Button className="" type="button" id="addModule" onClick={() => setMod(!modToggle)}>					{modToggle ? <FiMinus /> : <FiPlus />}
-					</Button> {" "}
+					<Button type="button"
+						id={!modToggle ? "addModule" : "selectModule"}
+						onClick={() => setMod(!modToggle)}>
+						{modToggle ? <FiMinus /> : <FiPlus />}
+					</Button>
 					{modToggle ?
 						// <FormGroup className="row">
 						<Input
-							className="offset-1 col-6"
+							className="col-7"
 							type="text"
 							name="newMod"
 							id="newMod"
 							placeholder="Add new Module"
 							onChange={addModule}
+							required="true"
 						/>
 						// </FormGroup>
 						:
@@ -375,8 +399,9 @@ function Upload(props) {
 						id="title"
 						placeholder="Title for the video"
 						onChange={handleChange}
-						required
+						required="true"
 					/>
+
 				</FormGroup>
 				<FormGroup className="row">
 					<Label for="desc" className="col-md-3">
@@ -389,23 +414,33 @@ function Upload(props) {
 						id="exampleText"
 						placeholder="Add Description"
 						onChange={handleChange}
-						required
+						required="true"
 					/>
 				</FormGroup>
 				<FormGroup className="row">
 					<Label for="videofile" className="col-md-3">
 						Video File
 					</Label>
-					<Input
-						className="col-md-8"
-						type="file"
-						id="video-file"
-						name="video"
-						label="Yo, pick a file!"
-						accept="video/*"
-						onChange={handleVideo}
-						required
-					/>
+					{linkToggle ?
+						< Input
+							className="col-md-6"
+							type="file"
+							id="video-file"
+							name="video"
+							accept="video/*"
+							onChange={handleVideo}
+							required="true"
+						/> :
+						<Input
+							className="col-md-6"
+							type="url"
+							id="video-file"
+							placeholder="Paste URL"
+							name="video"
+							onChange={handleVideo}
+						/>}
+					<Button className="offset-1 col-md-1" type="button" id="addModule" onClick={() => setLink(!linkToggle)}>					{linkToggle ? "Link" : "Video"}
+					</Button>
 				</FormGroup>
 				<FormGroup className="row" >
 					<Label for="addresources" className="col-md-3">
@@ -416,7 +451,6 @@ function Upload(props) {
 						type="file"
 						id="add-file"
 						name="file"
-						label="Yo, pick a file!"
 						onChange={handleFile}
 					/>
 				</FormGroup>
@@ -431,7 +465,7 @@ function Upload(props) {
 				</Row>
 				<hr />
 				<div>
-					<Progress animated style={{ backgroundColor: "blueviolet" }} value={progress}>
+					<Progress animated style={{ backgroundColor: "#009e60", color: "#111" }} value={progress}>
 						{progress}%
 					</Progress>
 				</div>

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem, Container, Row, ListGroup, ListGroupItem, ListGroupItemHeading, ListGroupItemText } from 'reactstrap';
+import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem, Container, Row, ListGroup, ListGroupItem, ListGroupItemHeading, ListGroupItemText, Button } from 'reactstrap';
 import Video from "./videoComponent";
 import { getFirestore } from 'redux-firestore';
 import { useFirebase, isLoaded } from 'react-redux-firebase';
@@ -39,6 +39,8 @@ function Subject(props) {
     const [topicPath, setTopicPath] = useState("");
     const [videoData, setVideoData] = useState(null);
     const [active, setActive] = useState(0);
+
+    const [hideModule, toggleHide] = useState(false)
 
     let res = null;
 
@@ -259,17 +261,35 @@ function Subject(props) {
                     </div>
                 </Row>
                 <hr />
-                <Row>
-                    <ListGroup className="offset-1 col-md-3">
-                        {moduleItems &&
-                            moduleItems.map((item, index) => (
-                                <ListGroupItem tag="button" key={index} id={index} value={item.name} onClick={fetchTopics} active={selectedModule === item.name ? true : false} action > {item.name}</ListGroupItem>
-                            ))
-                        }
-                    </ListGroup>
-                    <container className="offset-1">
-                        <ListTopics subject={selectedSubject} module={selectedModule} topics={topicItems} />
-                    </container>
+                <Button onClick={() => toggleHide(!hideModule)}> M </Button>
+                <Row className="module-list">
+                    {hideModule ?
+                        <> </>
+                        :
+                        <ListGroup className="col-md-3">
+                            {moduleItems &&
+                                moduleItems.map((item, index) => (
+                                    <ListGroupItem tag="button" key={index} id={index} value={item.name} onClick={fetchTopics} active={selectedModule === item.name ? true : false} action > {item.name}</ListGroupItem>
+                                ))
+                            }
+                        </ListGroup>
+                    }
+                    {
+                        videoData ?
+                            <>
+                                <Row>
+                                    <Button onClick={() => {
+                                        setVideoData(null)
+                                        toggleHide(!hideModule)
+                                    }}> back </Button>
+                                </Row>
+                                <Video subject={selectedSubject} module={selectedModule} topics={selectedTopic} path={topicPath} data={videoData} />
+                            </>
+                            :
+                            <container className="fetch-topics" style={{ borderLeft: "1px solid #999", marginLeft: "30px", paddingLeft: "70px" }}>
+                                <ListTopics subject={selectedSubject} module={selectedModule} topics={topicItems} />
+                            </container>
+                    }
                 </Row>
                 {/* <Route path="video/:videoID">
                     <Video subject={selectedSubject} module={selectedModule} topics={selectedTopic} path={topicPath} data={videoData} />
@@ -281,13 +301,6 @@ function Subject(props) {
                 {/* </Container> */}
             </div>
             <hr />
-            <div>
-                {
-                    videoData ?
-                        <Video subject={selectedSubject} module={selectedModule} topics={selectedTopic} path={topicPath} data={videoData} />
-                        : <></>
-                }
-            </div>
         </ProfileIsLoaded >
     );
 }

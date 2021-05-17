@@ -62,6 +62,7 @@ function Carousel(props) {
             setLeftEnd(true)
             setRightEnd(false)
         } else if (act === items.length - 1) {
+            console.log(act);
             setRightEnd(true)
             setLeftEnd(false)
         } else {

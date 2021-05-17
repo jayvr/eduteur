@@ -13,7 +13,8 @@ import {
 import { connect } from "react-redux";
 import { Link } from 'react-router-dom';
 import LatestImg from "../images/latest-img.svg";
-import { FiAirplay, FiUpload } from "react-icons/fi"
+import WatchLive from "../images/watch-live.svg";
+import { FiAirplay, FiUpload } from "react-icons/fi";
 import '../App.css';
 
 
@@ -39,9 +40,68 @@ const LandingJumbotron = (props) => {
 
 const StudentLandingPage = (props) => {
     return (
-        <>
-            <div> Student Landing Page</div>
-        </>
+        <Container className="main">
+            <div id="heading-text">LIVE</div>
+            <Row>
+                <Col>
+                    <Link to="#">
+                        <Card className="watchlive-card">
+                            <CardBody className="watchlive-body">
+                                <div className="watchlive-img">
+                                    <img src={LatestImg} height="100px" alt=":(" />
+                                </div>
+                                <div className="watchlive-text">
+                                    <div className="live-svg">
+                                        <p style={{ color: "#fa6648", fontWeight: "700" }}>LIVE</p>
+                                        <img src={WatchLive} alt="" />
+                                    </div>
+                                    <CardText className="watchlive-title">TITLE</CardText>
+                                    <CardText className="watchlive-desc-text">Description</CardText>
+                                </div>
+
+                            </CardBody>
+                        </Card>
+                    </Link>
+                </Col>
+            </Row>
+            <hr id="line" />
+            <div id="heading-text">LATEST</div>
+            <Row>
+                <Col>
+                    <Link to="#">
+                        <Card className="latest-card-1">
+                            <CardImg id="latest-image" top width="10%" src={LatestImg} alt=":(" />
+                            <CardBody className="latest-body-1">
+                                <CardTitle className="latest-title-text">LATEST-1</CardTitle>
+                                <CardText className="latest-desc-text">About the lecture</CardText>
+                            </CardBody>
+                        </Card>
+                    </Link>
+                </Col>
+                <Col>
+                    <Link to="#">
+                        <Card className="latest-card-2">
+                            <CardImg id="latest-image" top width="10%" src={LatestImg} alt=":(" />
+                            <CardBody className="latest-body-2">
+                                <CardTitle className="latest-title-text">LATEST-2</CardTitle>
+                                <CardText className="latest-desc-text">About the lecture</CardText>
+                            </CardBody>
+                        </Card>
+                    </Link>
+                </Col>
+                <Col>
+                    <Link to="#">
+                        <Card className="latest-card-3">
+                            <CardImg id="latest-image" top width="10%" src={LatestImg} alt=":(" />
+                            <CardBody className="latest-body-3">
+                                <CardTitle className="latest-title-text">LATEST-3</CardTitle>
+                                <CardText className="latest-desc-text">About the lecture</CardText>
+                            </CardBody>
+                        </Card>
+                    </Link>
+                </Col>
+            </Row>
+        </Container>
     );
 }
 

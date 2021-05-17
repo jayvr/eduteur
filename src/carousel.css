@@ -38,8 +38,8 @@ body {
   text-align: center;
   cursor: pointer;
   font-size: 20px;
-  margin: 4.3em 5%;
-  z-index: 1000;
+  margin: 4.5em 5%;
+  z-index: 1;
 }
 
 .arrow.end:hover {
@@ -47,11 +47,19 @@ body {
   cursor: not-allowed;
 }
 
+.arrow.end:hover svg {
+  color: #ef233c;
+}
+
 .arrow:hover {
   transform: scale(1.4);
   transition: 0.3s ease-in-out;
   border-radius: 25px;
   box-shadow: 0 0 10px #52b788;
+}
+
+.arrow:hover svg {
+  color: #40916c;
 }
 
 .arrow-right {

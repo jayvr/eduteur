@@ -1,17 +1,17 @@
 #page-loader {
-  width: 150px;
-  height: 150px;
+  width: 120px;
+  height: 120px;
 }
 
 #page-loader circle {
-  stroke-width: 10;
+  stroke-width: 7;
   stroke-linecap: round;
   fill: none;
 }
 
 #page-loader circle:nth-child(1) {
   stroke: #ffc114;
-  stroke-dasharray: 50;
+  stroke-dasharray: 40;
 }
 
 #page-loader circle:nth-child(2) {

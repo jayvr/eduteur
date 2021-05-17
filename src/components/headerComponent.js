@@ -6,7 +6,7 @@ import {
   NavbarBrand,
   Nav,
   NavItem,
-  NavLink,
+  // NavLink,
   UncontrolledDropdown,
   Dropdown,
   DropdownToggle,
@@ -22,12 +22,13 @@ import {
   Label,
   Input,
 } from 'reactstrap';
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { connect } from "react-redux";
 import { logIn, logOut } from "../redux/actioncreators/authActions";
 import Avatar from "../images/avatar.svg";
-import { FiMail, FiLock, FiChevronUp, FiChevronDown, FiSliders, FiPieChart, FiLogOut, FiLogIn, FiSearch, FiX } from "react-icons/fi";
+import { FiMail, FiLock, FiChevronUp, FiChevronDown, FiSliders, FiPieChart, FiLogOut, FiLogIn, FiSearch, FiX, FiBookOpen } from "react-icons/fi";
 import { GoCommentDiscussion } from "react-icons/go"
+import { AiOutlineHome } from "react-icons/ai"
 import '../App.css';
 import { findRenderedDOMComponentWithClass } from "react-dom/test-utils";
 
@@ -164,10 +165,13 @@ function Header(props) {
           <Collapse isOpen={isOpen} navbar>
             <Nav className="mr-auto" navbar>
               <NavItem>
-                <NavLink className="nav-links active"><Link to="/subject">Subject</Link></NavLink>
+                <NavLink activeClassName="active-link" className="nav-links" exact to="/"><AiOutlineHome id="nav-icons" />Home</NavLink>
               </NavItem>
               <NavItem>
-                <NavLink className="nav-links"><Link to="/discuss"><GoCommentDiscussion />Discuss</Link></NavLink>
+                <NavLink activeClassName="active-link" className="nav-links" to="/subject"><FiBookOpen id="nav-icons" />Subject</NavLink>
+              </NavItem>
+              <NavItem>
+                <NavLink activeClassName="active-link" className="nav-links" to="/discuss"><GoCommentDiscussion id="nav-icons" />Discuss</NavLink>
               </NavItem>
             </Nav>
             <div class="search">

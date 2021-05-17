@@ -1,32 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Container, Dropdown, DropdownItem, DropdownToggle, DropdownMenu, Card, ListGroup, ListGroupItem, ListGroupItemHeading, ListGroupItemText, CardHeader, CardBody, CardFooter, Button, Form, CardTitle, FormGroup, Label, Input, CustomInput, Collapse } from "reactstrap"
+import { connect } from 'react-redux';
+import { getFirestore } from 'redux-firestore';
+import { useFirebase, isLoaded } from 'react-redux-firebase';
 
-
-const DropdownBtn = (props) => {
-    const [dropdownOpen, setDropdownOpen] = useState(false);
-    const [items, setItems] = useState(props.items);
-    const [header, setHeader] = useState(props.header);
-
-    const toggle = () => setDropdownOpen(prevState => !prevState);
-
-    return (
-        <Dropdown isOpen={dropdownOpen} toggle={toggle}>
-            <DropdownToggle style={{ backgroundColor: "blueviolet", color: "white" }} caret>
-                {header}
-            </DropdownToggle>
-            <DropdownMenu>
-                {
-                    items.map((item) => (
-                        <DropdownItem key={item.id} >{item.name}</DropdownItem>
-                    ))
-                }
-            </DropdownMenu>
-        </Dropdown>
-
-
-    )
-
-}
 
 const AskQue = (props) => {
     const [isOpen, setIsOpen] = useState(true);
@@ -38,88 +15,116 @@ const AskQue = (props) => {
             <Card className="askques-card">
                 <Form>
                     <CardHeader className="d-flex justify-content-between">
-                        <div className="askques-card-heading" onClick={toggle} style={{
-                            cursor: "pointer",
-                        }}>
-                            <h3 color="primary">Ask Question</h3>
-                        </div>
-                        {isOpen ?
-                            <div className="col-md-4">
-                                <Input type="reset" value="Reset" />
-                            </div> : <> </>}
+
+                        <h3 color="primary">Ask Question</h3>
+
                     </CardHeader>
-                    <Collapse isOpen={isOpen} >
-                        <CardBody>
-                            <FormGroup className="askQues-input">
-                                <Input type="text" name="question" id="question" style={{ backgroundColor: "#fff" }} placeholder="Your question here" bsSize="lg" />
-                            </FormGroup>
-                            <FormGroup className="askQues-input">
-                                <Input type="textarea" name="desc" id="desc" style={{ backgroundColor: "#fff" }} placeholder="Description of your Question" />
-                            </FormGroup>
-                            {/* Add file attachment UI and backend */}
-                            <FormGroup>
-                                {/* <Label for="addresources" className="col-md-3" >Additional Resources</Label> */}
-                                <CustomInput type="file" id="file" name="file" label="upload file" />+
-                            </FormGroup>
-                        </CardBody>
-                        <CardFooter className="d-flex justify-content-end">
-                            <Button className="btn-success">Ask</Button> {"  "}
-                            <Button color="danger" onClick={toggle}
-                            >Cancel</Button>
-                        </CardFooter>
-                    </Collapse>
+                    <CardBody>
+                        <FormGroup className="askQues-input">
+                            <Input type="text" name="question" id="question" style={{ backgroundColor: "#fff" }} placeholder="Your question here" bsSize="lg" />
+                        </FormGroup>
+                        <FormGroup className="askQues-input">
+                            <Input type="textarea" name="desc" id="desc" style={{ backgroundColor: "#fff" }} placeholder="Description of your Question" />
+                        </FormGroup>
+                        {/* Add file attachment UI and backend */}
+                        <FormGroup>
+                            {/* <Label for="addresources" className="col-md-3" >Additional Resources</Label> */}
+                            <CustomInput type="file" id="file" name="file" label="upload file" />
+                        </FormGroup>
+                    </CardBody>
+                    <CardFooter className="d-flex justify-content-end">
+                        <Button className="btn-success">Add</Button>
+                    </CardFooter>
+
                 </Form>
             </Card>
         </div>
     );
 }
-function Discuss() {
+function Discuss(props) {
+
+    console.log(props)
+    const [subjectItems, setSubjectItems] = useState([{ name: "Loading..." }]);
+    const [userData, setUserData] = useState(props.profile);
 
 
-    const subjectItems = [
-        {
-            id: 1,
-            name: "Maths"
-        },
-        {
-            id: 2,
-            name: "Physics"
-        },
-        {
-            id: 3,
-            name: "Chemistry"
+    const firestore = getFirestore();
+    const firebase = useFirebase();
+
+
+    const DropdownBtn = (props) => {
+        const [dropdownOpen, setDropdownOpen] = useState(false);
+        const [items, setItems] = useState(props.items);
+        const [header, setHeader] = useState(props.header);
+
+        const toggle = () => setDropdownOpen(prevState => !prevState);
+
+        const fetcher = (e) => {
+            fetchDiscuss(e)
         }
 
-    ]
+        return (
+            <Dropdown isOpen={dropdownOpen} toggle={toggle}>
+                <DropdownToggle style={{ backgroundColor: "blueviolet", color: "white" }} caret>
+                    {header}
+                </DropdownToggle>
+                <DropdownMenu >
+                    {
+                        items.map((item, index) => (
+                            <DropdownItem key={index} value={item.name} onClick={fetcher} >{item.name}</DropdownItem>
+                        ))
+                    }
+                </DropdownMenu>
+            </Dropdown>
+        )
 
-    const moduleItems = [
-        {
-            id: 1,
-            name: "Module 1"
-        },
-        {
-            id: 2,
-            name: "Module 2"
-        },
-        {
-            id: 3,
-            name: "Module 3"
-        },
-        {
-            id: 4,
-            name: "Module 4"
+    }
+
+    const fetchDiscuss = (e) => {
+        console.log("WE HAVE FETCHED THE DISCUSS")
+    }
+
+
+    const fetchSubject = () => {
+        console.log("Fetching....");
+        if (props.profile.role === "student") {
+            const branch = userData.branch;
+            const path = `${userData.college}/sem${userData.sem}`
+            console.log("Subject path: " + path)
+            firestore.doc(path).get().then((doc) => {
+                if (doc.exists) {
+                    const data = doc.get(branch)
+                    console.log(data);
+                    setSubjectItems(data);
+                } else {
+                    console.log("No such doc or field exists!")
+                }
+            }).catch((error) => console.log(error))
         }
+        else if (props.profile.role === "faculty") {
+            // console.log("UserData: " + userData.subjects[0].name);
+            const subjects = userData.subjects;
+            console.log(subjects);
+            setSubjectItems(subjects);
+        } else {
+            // DO NOthing
+        }
+    }
 
-    ]
+
+
+    useEffect(() => {
+        fetchSubject()
+    }, [])
+
+
+
 
     return (
         <div className="Discuss" style={{ marginTop: "100px" }}>
             <div className=" row offset-md-3">
                 <div className="col-md-4">
                     <DropdownBtn header="Subjects" items={subjectItems} />
-                </div>
-                <div className="col-md-4">
-                    <DropdownBtn header="Modules" items={moduleItems} />
                 </div>
             </div>
             <br />
@@ -160,5 +165,13 @@ function Discuss() {
         </div>
     );
 }
+const MapStateToProps = (state) => {
+    console.log(state)
+    return {
+        profile: state.firebase.profile,
+        auth: state.firebase.auth,
+        firebase: state.firebase
+    };
+};
 
-export default Discuss;
+export default connect(MapStateToProps)(Discuss);
