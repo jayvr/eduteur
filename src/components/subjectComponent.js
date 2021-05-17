@@ -35,6 +35,7 @@ function Subject(props) {
     const [selectedSubject, setSelectedSubject] = useState("Subjects");
     const [selectedModule, setSelectedModule] = useState("Modules");
     const [selectedTopic, setSelectedTopic] = useState("Topics");
+    const [subjectPath, setSubjectPath] = useState("");
     const [topicPath, setTopicPath] = useState("");
     const [videoData, setVideoData] = useState({});
     const [active, setActive] = useState(0);
@@ -132,29 +133,50 @@ function Subject(props) {
 
     const fetchSubject = () => {
 
-        const branch = userData.branch;
-        const path = `${userData.college}/sem${userData.sem}`
-        console.log("Subject path: " + path)
-        firestore.doc(path).get().then((doc) => {
-            if (doc.exists) {
-                const data = doc.get(branch)
-                setSubjectItems(data);
-            } else {
-                console.log("No such doc or field exists!")
-            }
-        }).catch((error) => console.log(error))
+        if (props.profile.role === "student") {
+            const branch = userData.branch;
+            const path = `${userData.college}/sem${userData.sem}`
+            console.log("Subject path: " + path)
+            firestore.doc(path).get().then((doc) => {
+                if (doc.exists) {
+                    const data = doc.get(branch)
+                    setSubjectItems(data);
+                } else {
+                    console.log("No such doc or field exists!")
+                }
+            }).catch((error) => console.log(error))
+        }
+        else if (props.profile.role === "faculty") {
+            const subjects = userData.subjects;
+            setSubjectItems(subjects)
+        } else {
+            // DO NOthing
+        }
     }
 
     const fetchModules = (id) => {
 
         console.log("props in subject: " + id)
+        const selectedSub = subjectItems[id];
         const name = subjectItems[id].name;
         // const id = props.index;
         setSelectedSubject(name)
         // active = id;
         setActive(id)
         console.log("active in subject: " + active)
-        const path = `${userData.college}/sem${userData.sem}/${userData.branch}/${name}`
+
+        let path = "";
+
+        if (props.profile.role === "student")
+            path = `${userData.college}/sem${userData.sem}/${userData.branch}/${name}`
+        else if (props.profile.role === "faculty") {
+            path = `${userData.college}/sem${selectedSub.sem}/${selectedSub.branch}/${name}`
+        } else {
+            // DO NOTHING
+        }
+
+        setSubjectPath(path);
+
         console.log("Module path: " + path)
         firestore.doc(path).get()
             .then((doc) => {
@@ -179,7 +201,7 @@ function Subject(props) {
     }
 
     async function fetchTopics(name) {
-        const path = `${userData.college}/sem${userData.sem}/${userData.branch}/${selectedSubject}/${name}`;
+        const path = `${subjectPath}/${name}`;
         setTopicPath(path);
         var data = [];
 
