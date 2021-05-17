@@ -60,8 +60,10 @@ function Carousel(props) {
 
         if (act === 0) {
             setLeftEnd(true)
+            setRightEnd(false)
         } else if (act === items.length - 1) {
             setRightEnd(true)
+            setLeftEnd(false)
         } else {
             setLeftEnd(false)
             setRightEnd(false)
@@ -87,7 +89,7 @@ function Carousel(props) {
                 break
             }
             level = active - i
-            newItems.push(<Item key={index} index={index} id={items[index].id} level={level} data={items[index]} center={setNewActive} />)
+            newItems.push(<Item key={index} index={index} id={items[index].id} level={level} data={items[index]} center={setNewActive} left={moveLeft} right={moveRight} />)
         }
         return newItems
     }
@@ -98,11 +100,13 @@ function Carousel(props) {
         if (newActive === 0) {
             setLeftEnd(true)
         } else {
+            setLeftEnd(false)
             setRightEnd(false)
         }
         const currentActive = newActive < 0 ? 0 : newActive
         setActive(currentActive)
         setDirection("left")
+        props.fetch(currentActive)
 
     }
 
@@ -111,11 +115,13 @@ function Carousel(props) {
         if (newActive === items.length - 1) {
             setRightEnd(true)
         } else {
+            setRightEnd(false)
             setLeftEnd(false)
         }
         const currentActive = (newActive) >= items.length - 1 ? items.length - 1 : newActive
         setActive(currentActive)
         setDirection("right")
+        props.fetch(currentActive)
     }
     // onTouchStart={handleTouchStart} onTouchMove={handleTouchMove}
     return (
