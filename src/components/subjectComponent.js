@@ -37,7 +37,7 @@ function Subject(props) {
     const [selectedTopic, setSelectedTopic] = useState("Topics");
     const [subjectPath, setSubjectPath] = useState("");
     const [topicPath, setTopicPath] = useState("");
-    const [videoData, setVideoData] = useState({});
+    const [videoData, setVideoData] = useState(null);
     const [active, setActive] = useState(0);
 
     let res = null;
@@ -105,11 +105,12 @@ function Subject(props) {
 
         async function handleVideo(e) {
             console.log(e.target.id)
-            setSelectedTopic(e.target.id)
+
             const path = `${topicPath}/${e.target.id}`
             setTopicPath(path);
 
             res = topicItems.find(({ id }) => id === e.target.id)
+            setSelectedTopic(res.title)
             // console.log(res)
             setVideoData(res);
         }
@@ -119,10 +120,11 @@ function Subject(props) {
                 {
                     topics.map((topic) => (
                         <ListGroupItem onClick={handleVideo} id={topic.id} key={topic.id} action>
-                            <Link to={`/video/${topic.id}`}>
-                                <ListGroupItemHeading id={topic.id}>{topic.title} --- {topic.moduleName}</ListGroupItemHeading>
-                                <ListGroupItemText id={topic.id}>{topic.dec}</ListGroupItemText>
-                            </Link>
+                            {/* <Link to={`/video/${topic.id}`}> */}
+                            <ListGroupItemHeading id={topic.id}>{topic.title}</ListGroupItemHeading>
+                            <ListGroupItemText id={topic.id}>{topic.dec}</ListGroupItemText>
+                            <ListGroupItemText id={topic.id}>{topic.author}</ListGroupItemText>
+                            {/* </Link> */}
                         </ListGroupItem>
 
                     ))
@@ -132,6 +134,9 @@ function Subject(props) {
     }
 
     const fetchSubject = () => {
+
+        setVideoData(null);
+        setTopicItems([]);
 
         if (props.profile.role === "student") {
             const branch = userData.branch;
@@ -155,6 +160,9 @@ function Subject(props) {
     }
 
     const fetchModules = (id) => {
+
+        setVideoData(null);
+        setTopicItems([]);
 
         console.log("props in subject: " + id)
         const selectedSub = subjectItems[id];
@@ -200,7 +208,13 @@ function Subject(props) {
         ]);
     }
 
-    async function fetchTopics(name) {
+    async function fetchTopics(e) {
+
+        setSelectedModule(e.target.value);
+        setVideoData(null);
+        setTopicItems([]);
+
+        const name = e.target.value;
         const path = `${subjectPath}/${name}`;
         setTopicPath(path);
         var data = [];
@@ -230,20 +244,13 @@ function Subject(props) {
 
     return (
         <ProfileIsLoaded>
-            <Container style={{ marginTop: "4em" }}>
+            {/* <Container style={{ marginTop: "4em" }}> */}
+            <div style={{ marginTop: "4em", marginLeft: "2em", marginRight: "2em" }}>
                 <br />
                 <Row>
                     <div className="col-12">
                         <Carousel items={subjectItems} active={active} fetch={fetchModules} />
                     </div>
-                </Row>
-                <Row className="justify-content-around">
-                    <div className="module col-sm-4 col-md-1">
-                        <DropdownBtn header={selectedModule} items={moduleItems} fetch="topics" />
-                    </div>
-                    {/* <div className="module col-sm-4 offset-md-1 col-md-1">
-                        <DropdownBtn header={selectedTopic} items={topicItems} fetch="data" />
-                    </div> */}
                 </Row>
                 <hr />
                 <Row>
@@ -252,21 +259,36 @@ function Subject(props) {
                     </div>
                 </Row>
                 <hr />
-                <br />
-                <container>
-                    <ListTopics subject={selectedSubject} module={selectedModule} topics={topicItems} />
-                </container>
-
-                {/* <Video subject={selectedSubject} module={selectedModule} topics={selectedTopic} path={topicPath} data={videoData} /> */}
+                <Row>
+                    <ListGroup className="offset-1 col-md-3">
+                        {moduleItems &&
+                            moduleItems.map((item, index) => (
+                                <ListGroupItem tag="button" key={index} id={index} value={item.name} onClick={fetchTopics} active={selectedModule === item.name ? true : false} action > {item.name}</ListGroupItem>
+                            ))
+                        }
+                    </ListGroup>
+                    <container className="offset-1">
+                        <ListTopics subject={selectedSubject} module={selectedModule} topics={topicItems} />
+                    </container>
+                </Row>
                 {/* <Route path="video/:videoID">
                     <Video subject={selectedSubject} module={selectedModule} topics={selectedTopic} path={topicPath} data={videoData} />
                 </Route> */}
-                <Route path="video/:videoID">
+                {/* <Route path="video/:videoID">
                     <Video topicItems={topicItems} />
-                </Route>
+                </Route> */}
                 {/* <Route path="video/:videoID" render={(props) => <Video topicItems={topicItems} />} /> */}
-            </Container>
-        </ProfileIsLoaded>
+                {/* </Container> */}
+            </div>
+            <hr />
+            <div>
+                {
+                    videoData ?
+                        <Video subject={selectedSubject} module={selectedModule} topics={selectedTopic} path={topicPath} data={videoData} />
+                        : <></>
+                }
+            </div>
+        </ProfileIsLoaded >
     );
 }
 

@@ -40,6 +40,7 @@ const Video = (props) => {
     // const [module, setModule] = useState(props.module);
     // const [path, setPath] = useState(props.path);
     // const [data, setData] = useState({ videoURL: "", title: "...", author: "...", dec: "..." });
+    const [data, setData] = useState(props.data);
 
     const topicItems = props.topicItems;
     console.log("Props in Video" + props.topicItems)
@@ -75,13 +76,13 @@ const Video = (props) => {
     return (
         <PropsIsLoaded>
             <Container>
-                {/* <div className="d-flex justify-content-center">
+                <div className="d-flex justify-content-center">
                     <video className="col-md-8" style={{ outline: "none" }} src={data.videoURL} controls></video>
                 </div>
                 <hr />
                 <Row className=" row d-flex justify-content-between">
                     <h3>{data.title}</h3>
-                    <Button>Download Resource</Button>
+                    {data.fileURL ? <Button>Download Resource</Button> : <Button disabled>No Resource</Button>}
                 </Row>
                 <Row>
                     <h5><i>- {data.author}</i></h5>
@@ -91,7 +92,7 @@ const Video = (props) => {
                     <h4>Description</h4>
                     <p>{data.dec}</p>
                 </div>
-                Description will be collapsible like YouTube  */}
+                {/* Description will be collapsible like YouTube  */}
             </Container>
         </PropsIsLoaded >
     )
