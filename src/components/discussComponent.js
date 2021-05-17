@@ -46,6 +46,8 @@ function Discuss(props) {
     console.log(props)
     const [subjectItems, setSubjectItems] = useState([{ name: "Loading..." }]);
     const [userData, setUserData] = useState(props.profile);
+    const [selectedSubject, setSelectedSubject] = useState("Subjects");
+    const [discussPath,setDiscussPath] = useState("");
 
 
     const firestore = getFirestore();
@@ -60,6 +62,10 @@ function Discuss(props) {
         const toggle = () => setDropdownOpen(prevState => !prevState);
 
         const fetcher = (e) => {
+            if(userData.role == "faculty"){
+                console.log("fac",e.target.value);
+            }
+            setSelectedSubject(e.target.value);
             fetchDiscuss(e)
         }
 
@@ -71,7 +77,7 @@ function Discuss(props) {
                 <DropdownMenu >
                     {
                         items.map((item, index) => (
-                            <DropdownItem key={index} value={item.name} onClick={fetcher} >{item.name}</DropdownItem>
+                            <DropdownItem key={index} value={item.name} onClick={fetcher} sem={item.sem} branch={item.branch}>{item.name}</DropdownItem>
                         ))
                     }
                 </DropdownMenu>
@@ -81,7 +87,7 @@ function Discuss(props) {
     }
 
     const fetchDiscuss = (e) => {
-        console.log("WE HAVE FETCHED THE DISCUSS")
+        console.log("WE HAVE FETCHED THE DISCUSS");
     }
 
 
@@ -90,6 +96,8 @@ function Discuss(props) {
         if (props.profile.role === "student") {
             const branch = userData.branch;
             const path = `${userData.college}/sem${userData.sem}`
+            const dispath = `${path}/${branch}`
+            setDiscussPath(dispath);
             console.log("Subject path: " + path)
             firestore.doc(path).get().then((doc) => {
                 if (doc.exists) {
@@ -103,6 +111,8 @@ function Discuss(props) {
         }
         else if (props.profile.role === "faculty") {
             // console.log("UserData: " + userData.subjects[0].name);
+            const tpath = userData.college;
+            setDiscussPath(tpath);
             const subjects = userData.subjects;
             console.log(subjects);
             setSubjectItems(subjects);
@@ -121,10 +131,13 @@ function Discuss(props) {
 
 
     return (
+        <>
+        {props.auth.uid ? 
         <div className="Discuss" style={{ marginTop: "100px" }}>
             <div className=" row offset-md-3">
                 <div className="col-md-4">
                     <DropdownBtn header="Subjects" items={subjectItems} />
+                    {console.log(selectedSubject)}
                 </div>
             </div>
             <br />
@@ -163,6 +176,12 @@ function Discuss(props) {
                 </div>
             </div>
         </div>
+        :
+        <>
+        {window.location.replace("http://localhost:3000/")}
+        </>
+        }
+        </>
     );
 }
 const MapStateToProps = (state) => {

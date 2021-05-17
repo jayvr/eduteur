@@ -333,6 +333,9 @@ function Upload(props) {
 	// }
 	return (
 		// <ProfileIsLoaded>
+		<>
+		{props.auth.uid?
+		<>
 		<Form className="upload-form" id="upload-form" onSubmit={handleUpload}>
 			<Container>
 				<h1 id="form-heading">Upload Module / Materials</h1>
@@ -472,6 +475,13 @@ function Upload(props) {
 				<hr />
 			</Container>
 		</Form >
+		</>
+		:
+		<>
+		{window.location.replace("http://localhost:3000/")}
+		</>
+	}
+	</>
 		// </ProfileIsLoaded>
 	);
 

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem, Container, Row, ListGroup, ListGroupItem, ListGroupItemHeading, ListGroupItemText, Button } from 'reactstrap';
+import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem, Container, Row, ListGroup, ListGroupItem, ListGroupItemHeading, ListGroupItemText, Button, Alert } from 'reactstrap';
 import Video from "./videoComponent";
 import { getFirestore } from 'redux-firestore';
 import { useFirebase, isLoaded } from 'react-redux-firebase';
@@ -246,6 +246,8 @@ function Subject(props) {
 
     return (
         <ProfileIsLoaded>
+            {props.auth.uid?
+            <>
             {/* <Container style={{ marginTop: "4em" }}> */}
             <div style={{ marginTop: "4em", marginLeft: "2em", marginRight: "2em" }}>
                 <br />
@@ -301,6 +303,12 @@ function Subject(props) {
                 {/* </Container> */}
             </div>
             <hr />
+        </>
+        :
+          <>
+          
+          {window.location.replace("http://localhost:3000/")}
+          </>  }
         </ProfileIsLoaded >
     );
 }
