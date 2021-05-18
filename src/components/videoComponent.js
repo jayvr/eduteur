@@ -31,7 +31,15 @@ const Video = (props) => {
                 <hr style={{ background: "#555", marginTop: "40px" }} />
                 <Row className=" row d-flex justify-content-between video-title">
                     <h3>{data.title}</h3>
-                    {data.fileURL ? <Button className="download-video"><FiDownload stroke="#111" />  Download Resource</Button> : <Button className="no-video" disabled><FiDownload stroke="#fff" />  No Resource</Button>}
+                    {
+                        data.fileURL ?
+                            <Button className="download-video" >
+                                <a href={data.fileURL} target="_blank" download={data.title}>
+                                    <FiDownload stroke="#111" />  Download Resource
+                                </a>
+                            </Button>
+                            : <Button className="no-video" disabled><FiDownload stroke="#fff" />  No Resource</Button>
+                    }
                 </Row>
                 <Row>
                     <h5><i>- {data.author}</i></h5>

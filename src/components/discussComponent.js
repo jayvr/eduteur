@@ -3,40 +3,8 @@ import { Container, Dropdown, DropdownItem, DropdownToggle, DropdownMenu, Card, 
 import { connect } from 'react-redux';
 import { getFirestore } from 'redux-firestore';
 import { useFirebase, isLoaded } from 'react-redux-firebase';
+import AskQue from "./askQueComponent"
 
-
-const AskQue = (props) => {
-    return (
-        <div>
-            <Card className="askques-card">
-                <Form>
-                    <CardHeader className="d-flex justify-content-between">
-
-                        <h3 color="primary">Ask Question</h3>
-
-                    </CardHeader>
-                    <CardBody>
-                        <FormGroup className="askQues-input">
-                            <Input type="text" name="question" id="question" style={{ backgroundColor: "#fff" }} placeholder="Your question here" bsSize="lg" />
-                        </FormGroup>
-                        <FormGroup className="askQues-input">
-                            <Input type="textarea" name="desc" id="desc" style={{ backgroundColor: "#fff" }} placeholder="Description of your Question" />
-                        </FormGroup>
-                        {/* Add file attachment UI and backend */}
-                        <FormGroup>
-                            {/* <Label for="addresources" className="col-md-3" >Additional Resources</Label> */}
-                            <CustomInput type="file" id="file" name="file" label="upload file" />
-                        </FormGroup>
-                    </CardBody>
-                    <CardFooter className="d-flex justify-content-end">
-                        <Button className="btn-success">Add</Button>
-                    </CardFooter>
-
-                </Form>
-            </Card>
-        </div>
-    );
-}
 function Discuss(props) {
 
     // console.log(props)
@@ -46,6 +14,9 @@ function Discuss(props) {
     const [selectedSubject, setSelectedSubject] = useState("Subjects");
     const [selectedSubjectData, setSelectedSubjectData] = useState({});
     const [discussPath, setDiscussPath] = useState("");
+
+    const [subjectLoaded, setSubjectLoaded] = useState(false);
+    const [showAsk, toggleAsk] = useState(false)
 
 
     const firestore = getFirestore();
@@ -147,47 +118,55 @@ function Discuss(props) {
     }
 
     useEffect(() => {
-        fetchSubject()
+        fetchSubject();
+        setSubjectLoaded(true);
     }, [])
 
 
     return (
         <>
-            {props.auth.uid ?
-                <div className="Discuss" style={{ marginTop: "100px" }}>
-                    <div className=" row offset-md-3">
-                        <div className="col-md-4">
-                            <DropdownBtn header={selectedSubject} items={subjectItems} />
+            {
+                props.auth.uid ?
+                    <div className="Discuss" style={{ marginTop: "100px" }}>
+                        <div className=" row offset-md-3">
+                            <div className="col-md-4">
+                                <DropdownBtn header={selectedSubject} items={subjectItems} />
+                            </div>
                         </div>
-                    </div>
-                    <br />
-                    <hr />
-                    <div><h3>{selectedSubject === "Subjects" ? "" : selectedSubject}</h3></div>
-                    <div className="row justify-content-around">
-                        <div className="col-md-6">
-                            <ListGroup>
+                        <br />
+                        <hr />
+                        <div><h3>{selectedSubject === "Subjects" ? "" : selectedSubject}</h3></div>
+                        <div className="row justify-content-around">
+                            <div className="col-md-6">
+                                <ListGroup>
+                                    {
+                                        discussItems &&
+                                        discussItems.map((item, index) => (
+                                            <ListGroupItem key={index}>
+                                                <ListGroupItemHeading>{item.title} ---{item.author}</ListGroupItemHeading>
+                                                <ListGroupItemText>
+                                                    {item.dec}
+                                                </ListGroupItemText>
+                                            </ListGroupItem>
+                                        ))
+                                    }
+                                </ListGroup>
+                            </div>
+                            <div className="col-md-3">
+                                <Button onClick={() => toggleAsk(!showAsk)}>Ask Que</Button>
                                 {
-                                    discussItems &&
-                                    discussItems.map((item, index) => (
-                                        <ListGroupItem key={index}>
-                                            <ListGroupItemHeading>{item.title}</ListGroupItemHeading>
-                                            <ListGroupItemText>
-                                                {item.desc}
-                                            </ListGroupItemText>
-                                        </ListGroupItem>
-                                    ))
+                                    showAsk && subjectLoaded ?
+                                        <AskQue subjects={subjectItems} />
+                                        :
+                                        <> </>
                                 }
-                            </ListGroup>
-                        </div>
-                        <div className="col-md-3">
-                            <AskQue />
+                            </div>
                         </div>
                     </div>
-                </div>
-                :
-                <>
-                    {window.location.replace("http://localhost:3000/")}
-                </>
+                    :
+                    <>
+                        {window.location.replace("http://localhost:3000/")}
+                    </>
             }
         </>
     );

@@ -17,7 +17,8 @@ import {
 	Modal,
 	ModalBody,
 	ModalFooter,
-	ModalHeader
+	ModalHeader,
+	Alert
 } from 'reactstrap';
 import { getFirestore } from 'redux-firestore';
 import { useFirebase, isLoaded } from 'react-redux-firebase';
@@ -45,6 +46,8 @@ function Upload(props) {
 	const [selectedModule, setSelectedModule] = useState("Modules");
 	const [isFirstModule, setFirstModule] = useState(false);
 	const [newModule, setNewModule] = useState({ name: "", id: 1 });
+	const [isUploaded, setUploaded] = useState(false);
+	const [showProgress, setProgressBar] = useState(false);
 
 	const [video, setVideo] = useState(null)
 	const [file, setFile] = useState(null)
@@ -74,34 +77,6 @@ function Upload(props) {
 			toggleClass = "module-toggle";
 			toggleDrop = "module-drop";
 		}
-
-		// const [modal, setModal] = useState(false);
-		// const modToggle = () => setModal(prevState => !prevState);
-
-		// const addModule = (e) => {
-		// 	console.log("New Module:" + e.target.value)
-		// 	setNewModule({
-		// 		name: e.target.value,
-		// 		id: isFirstModule ? 1 : moduleItems.length + 1
-		// 	});
-		// }
-
-		// const uploadMod = (e) => {
-		// 	e.preventDefault()
-		// 	console.log("inside upload module")
-		// 	const path = `${formData.college}/${formData.sem}/${formData.branch}`
-		// 	console.log(path)
-		// 	console.log("Updating module MBR")
-		// 	firestore.collection(`${path}`).doc(`${formData.subject}`).set({
-		// 		modules: firebase.firestore.FieldValue.arrayUnion({
-		// 			id: newModule.id,
-		// 			name: newModule.name
-		// 		})
-		// 	}, { merge: true }).then(() => {
-		// 		console.log("Modules updated")
-		// 		modToggle()
-		// 	})
-		// }
 
 		const fetcher = (e) => {
 			console.log("inside fetcher")
@@ -283,7 +258,7 @@ function Upload(props) {
 			}
 		}).then(async () => {
 			console.log('Creating Document...');
-			// make a new doc for every new video/topic
+			// make a new doc for every new discussion question
 			await firestore.collection(`${fullpath}`)
 				.add({
 					title: formData.title,
@@ -334,154 +309,142 @@ function Upload(props) {
 	return (
 		// <ProfileIsLoaded>
 		<>
-		{props.auth.uid?
-		<>
-		<Form className="upload-form" id="upload-form" onSubmit={handleUpload}>
-			<Container>
-				<h1 id="form-heading">Upload Module / Materials</h1>
-				<hr />
-				<FormGroup className=" row">
-					<Label for="selectSubject" style={{ marginTop: "20px" }} className="col-md-3">Subject</Label>
-					<DropdownBtn header={selectedSubject} items={subjectItems} from="subject" required data-error="Subject is Required." />
-					{/* <DropdownBtn header={selectedModule} items={moduleItems} from="module" required data-error="module is Required." /> */}
-				</FormGroup>
-				<FormGroup className="row">
-					<Label for="selectModule" className="col-md-3">Module</Label>
-					{/* <Input type="select" className="col-md-6" id="module" name="module" onChange={handleModule} required="true">
-						<option value="" disabled selected>Select Module</option>
-						{
-							moduleItems.map((item, index) => (
-								<option key={item.id} id={index} value={item.name} name="module" className="module-options">
-									{item.name}
-								</option>
-							))
-						}
-					</Input>
-					*/}
-					<Button type="button"
-						id={!modToggle ? "addModule" : "selectModule"}
-						onClick={() => setMod(!modToggle)}>
-						{modToggle ? <FiMinus /> : <FiPlus />}
-					</Button>
-					{modToggle ?
-						// <FormGroup className="row">
-						<Input
-							className="col-7"
-							type="text"
-							name="newMod"
-							id="newMod"
-							placeholder="Add new Module"
-							onChange={addModule}
-							required="true"
-						/>
-						// </FormGroup>
-						:
-						<DropdownBtn header={selectedModule} items={moduleItems} from="module" required data-error="module is Required." />
-					}
+			{props.auth.uid && props.profile.role == "faculty" ?
+				<>
+					<Form className="upload-form" id="upload-form" onSubmit={handleUpload}>
+						<Container>
+							<h1 id="form-heading">Upload Module / Materials</h1>
+							<hr />
+							<FormGroup className=" row">
+								<Label for="selectSubject" style={{ marginTop: "20px" }} className="col-md-3">Subject</Label>
+								<DropdownBtn header={selectedSubject} items={subjectItems} from="subject" required data-error="Subject is Required." />
+							</FormGroup>
+							<FormGroup className="row">
+								<Label for="selectModule" className="col-md-3">Module</Label>
+								<Button type="button"
+									id={!modToggle ? "addModule" : "selectModule"}
+									onClick={() => setMod(!modToggle)}>
+									{modToggle ? <FiMinus /> : <FiPlus />}
+								</Button>
+								{modToggle ?
+									<Input
+										className="col-7"
+										type="text"
+										name="newMod"
+										id="newMod"
+										placeholder="Add new Module"
+										onChange={addModule}
+										required="true"
+									/>
+									:
+									<DropdownBtn header={selectedModule} items={moduleItems} from="module" required data-error="module is Required." />
+								}
 
-				</FormGroup>
-				{/* {modToggle ?
-					<FormGroup className="row">
-						<Input
-							className="offset-md-3 col-md-8"
-							type="text"
-							name="newMod"
-							id="newMod"
-							placeholder="Add new Module"
-							onChange={addModule}
-						/>
-					</FormGroup> : <span></span>} */}
-				<FormGroup className="row">
-					<Label for="title" className="col-md-3">
-						Title
+							</FormGroup>
+							<FormGroup className="row">
+								<Label for="title" className="col-md-3">
+									Title
 					</Label>
-					<Input
-						className="col-md-8"
-						type="text"
-						name="title"
-						id="title"
-						placeholder="Title for the video"
-						onChange={handleChange}
-						required="true"
-					/>
+								<Input
+									className="col-md-8"
+									type="text"
+									name="title"
+									id="title"
+									placeholder="Title for the video"
+									onChange={handleChange}
+									required="true"
+								/>
 
-				</FormGroup>
-				<FormGroup className="row">
-					<Label for="desc" className="col-md-3">
-						Description
+							</FormGroup>
+							<FormGroup className="row">
+								<Label for="desc" className="col-md-3">
+									Description
 					</Label>
-					<Input
-						className="col-md-8"
-						type="textarea"
-						name="desc"
-						id="exampleText"
-						placeholder="Add Description"
-						onChange={handleChange}
-						required="true"
-					/>
-				</FormGroup>
-				<FormGroup className="row">
-					<Label for="videofile" className="col-md-3">
-						Video File
+								<Input
+									className="col-md-8"
+									type="textarea"
+									name="desc"
+									id="exampleText"
+									placeholder="Add Description"
+									onChange={handleChange}
+									required="true"
+								/>
+							</FormGroup>
+							<FormGroup className="row">
+								<Label for="videofile" className="col-md-3">
+									Video File
 					</Label>
-					{linkToggle ?
-						< Input
-							className="col-md-6"
-							type="file"
-							id="video-file"
-							name="video"
-							accept="video/*"
-							onChange={handleVideo}
-							required="true"
-						/> :
-						<Input
-							className="col-md-6"
-							type="url"
-							id="video-file"
-							placeholder="Paste URL"
-							name="video"
-							onChange={handleVideo}
-						/>}
-					<Button className="offset-1 col-md-1" type="button" id="addModule" onClick={() => setLink(!linkToggle)}>					{linkToggle ? "Link" : "Video"}
+								{linkToggle ?
+									< Input
+										className="col-md-6"
+										type="file"
+										id="video-file"
+										name="video"
+										accept="video/*"
+										onChange={handleVideo}
+										required="true"
+									/> :
+									<Input
+										className="col-md-6"
+										type="url"
+										id="video-file"
+										placeholder="Paste URL"
+										name="video"
+										onChange={handleVideo}
+									/>}
+								<Button className="offset-1 col-md-1" type="button" id="addModule" onClick={() => setLink(!linkToggle)}>					{linkToggle ? "Link" : "Video"}
+								</Button>
+							</FormGroup>
+							<FormGroup className="row" >
+								<Label for="addresources" className="col-md-3">
+									Additional Resources
+					</Label>
+								<Input
+									className="col-md-8"
+									type="file"
+									id="add-file"
+									name="file"
+									onChange={handleFile}
+								/>
+							</FormGroup>
+							<Row className="offset-md-4">
+								<Button
+									className=""
+									id="upload-btn"
+									onSubmit={handleUpload}
+								>
+									Upload
 					</Button>
-				</FormGroup>
-				<FormGroup className="row" >
-					<Label for="addresources" className="col-md-3">
-						Additional Resources
-					</Label>
-					<Input
-						className="col-md-8"
-						type="file"
-						id="add-file"
-						name="file"
-						onChange={handleFile}
-					/>
-				</FormGroup>
-				<Row className="offset-md-4">
-					<Button
-						className=""
-						id="upload-btn"
-						onSubmit={handleUpload}
-					>
-						Upload
-					</Button>
-				</Row>
-				<hr />
-				<div>
-					<Progress animated style={{ backgroundColor: "#009e60", color: "#111" }} value={progress}>
-						{progress}%
-					</Progress>
-				</div>
-				<hr />
-			</Container>
-		</Form >
+							</Row>
+							<hr />
+							<div>
+								<>
+									{
+										progress === 100 ?
+											<Alert color="primary">
+												Uploaded
+		  									</Alert>
+											: progress === 0 ?
+												<> </>
+												:
+												<Progress animated
+													style={{ backgroundColor: "#009e60", color: "#111" }}
+													value={progress}>
+													{progress}%
+												</Progress>
+									}
+								</>
+							</div>
+							<hr />
+						</Container>
+					</Form >
+				</>
+				:
+				<>
+					{window.location.replace("http://localhost:3000/")}
+				</>
+			}
 		</>
-		:
-		<>
-		{window.location.replace("http://localhost:3000/")}
-		</>
-	}
-	</>
 		// </ProfileIsLoaded>
 	);
 
