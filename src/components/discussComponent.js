@@ -6,10 +6,6 @@ import { useFirebase, isLoaded } from 'react-redux-firebase';
 
 
 const AskQue = (props) => {
-    const [isOpen, setIsOpen] = useState(true);
-    const toggle = () => setIsOpen(!isOpen);
-    const closeCard = () => setIsOpen(false)
-
     return (
         <div>
             <Card className="askques-card">
@@ -43,11 +39,13 @@ const AskQue = (props) => {
 }
 function Discuss(props) {
 
-    console.log(props)
-    const [subjectItems, setSubjectItems] = useState([{ name: "Loading..." }]);
+    // console.log(props)
     const [userData, setUserData] = useState(props.profile);
+    const [subjectItems, setSubjectItems] = useState([{ name: "Loading..." }]);
+    const [discussItems, setDiscussItems] = useState(null);
     const [selectedSubject, setSelectedSubject] = useState("Subjects");
-    const [discussPath,setDiscussPath] = useState("");
+    const [selectedSubjectData, setSelectedSubjectData] = useState({});
+    const [discussPath, setDiscussPath] = useState("");
 
 
     const firestore = getFirestore();
@@ -62,8 +60,8 @@ function Discuss(props) {
         const toggle = () => setDropdownOpen(prevState => !prevState);
 
         const fetcher = (e) => {
-            if(userData.role == "faculty"){
-                console.log("fac",e.target.value);
+            if (userData.role === "faculty") {
+                console.log("fac", e.target.value);
             }
             setSelectedSubject(e.target.value);
             fetchDiscuss(e)
@@ -77,7 +75,7 @@ function Discuss(props) {
                 <DropdownMenu >
                     {
                         items.map((item, index) => (
-                            <DropdownItem key={index} value={item.name} onClick={fetcher} sem={item.sem} branch={item.branch}>{item.name}</DropdownItem>
+                            <DropdownItem key={index} id={index} value={item.name} onClick={fetcher} sem={item.sem} branch={item.branch}>{item.name}</DropdownItem>
                         ))
                     }
                 </DropdownMenu>
@@ -86,8 +84,35 @@ function Discuss(props) {
 
     }
 
-    const fetchDiscuss = (e) => {
-        console.log("WE HAVE FETCHED THE DISCUSS");
+    async function fetchDiscuss(e) {
+
+        let discPath = "";
+        const id = e.target.id;
+        const selectedSub = subjectItems[id];
+        setSelectedSubjectData(selectedSub);
+
+        if (props.profile.role === "student")
+            discPath = `${userData.college}/sem${userData.sem}/${userData.branch}/discussion/${e.target.value}`;
+        else if (props.profile.role === "faculty") {
+            discPath = `${userData.college}/sem${selectedSub.sem}/${selectedSub.branch}/discussion/${e.target.value}`;
+        } else {
+            // DO NOTHING
+        }
+
+        setDiscussPath(discPath);
+        console.log(discPath);
+
+        let data = [];
+
+        const discussRef = firestore.collection(discPath);
+        const snapshot = await discussRef.get();
+        snapshot.forEach((doc) => {
+            data.push({ ...doc.data(), id: doc.id })
+
+        });
+        console.log(data);
+        setDiscussItems(data);
+
     }
 
 
@@ -96,8 +121,8 @@ function Discuss(props) {
         if (props.profile.role === "student") {
             const branch = userData.branch;
             const path = `${userData.college}/sem${userData.sem}`
-            const dispath = `${path}/${branch}`
-            setDiscussPath(dispath);
+            // const dispath = `${path}/${branch}`
+            // setDiscussPath(dispath);
             console.log("Subject path: " + path)
             firestore.doc(path).get().then((doc) => {
                 if (doc.exists) {
@@ -121,66 +146,49 @@ function Discuss(props) {
         }
     }
 
-
-
     useEffect(() => {
         fetchSubject()
     }, [])
 
 
-
-
     return (
         <>
-        {props.auth.uid ? 
-        <div className="Discuss" style={{ marginTop: "100px" }}>
-            <div className=" row offset-md-3">
-                <div className="col-md-4">
-                    <DropdownBtn header="Subjects" items={subjectItems} />
-                    {console.log(selectedSubject)}
+            {props.auth.uid ?
+                <div className="Discuss" style={{ marginTop: "100px" }}>
+                    <div className=" row offset-md-3">
+                        <div className="col-md-4">
+                            <DropdownBtn header={selectedSubject} items={subjectItems} />
+                        </div>
+                    </div>
+                    <br />
+                    <hr />
+                    <div><h3>{selectedSubject === "Subjects" ? "" : selectedSubject}</h3></div>
+                    <div className="row justify-content-around">
+                        <div className="col-md-6">
+                            <ListGroup>
+                                {
+                                    discussItems &&
+                                    discussItems.map((item, index) => (
+                                        <ListGroupItem key={index}>
+                                            <ListGroupItemHeading>{item.title}</ListGroupItemHeading>
+                                            <ListGroupItemText>
+                                                {item.desc}
+                                            </ListGroupItemText>
+                                        </ListGroupItem>
+                                    ))
+                                }
+                            </ListGroup>
+                        </div>
+                        <div className="col-md-3">
+                            <AskQue />
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <br />
-            <hr />
-            <div className="row justify-content-around">
-                <div className="col-md-6">
-                    <ListGroup>
-                        <ListGroupItem>
-                            <ListGroupItemHeading>Question</ListGroupItemHeading>
-                            <ListGroupItemText>
-                                Description of the question
-                        </ListGroupItemText>
-                        </ListGroupItem>
-                        <ListGroupItem>
-                            <ListGroupItemHeading>Question</ListGroupItemHeading>
-                            <ListGroupItemText>
-                                Description of the question
-                        </ListGroupItemText>
-                        </ListGroupItem>
-                        <ListGroupItem>
-                            <ListGroupItemHeading>Question</ListGroupItemHeading>
-                            <ListGroupItemText>
-                                Description of the question
-                        </ListGroupItemText>
-                        </ListGroupItem>
-                        <ListGroupItem>
-                            <ListGroupItemHeading>Question</ListGroupItemHeading>
-                            <ListGroupItemText>
-                                Description of the question
-                        </ListGroupItemText>
-                        </ListGroupItem>
-                    </ListGroup>
-                </div>
-                <div className="col-md-3">
-                    <AskQue />
-                </div>
-            </div>
-        </div>
-        :
-        <>
-        {window.location.replace("http://localhost:3000/")}
-        </>
-        }
+                :
+                <>
+                    {window.location.replace("http://localhost:3000/")}
+                </>
+            }
         </>
     );
 }
