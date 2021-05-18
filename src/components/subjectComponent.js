@@ -257,7 +257,7 @@ function Subject(props) {
                         </Row>
                         <Row className="breadcrumb">
                             <div className="col">
-                                {selectedSubject}/{selectedModule}
+                                <span style={{ color: "#276678", fontWeight: "600" }}>{selectedSubject}</span>/{selectedModule}
                             </div>
                         </Row>
                         <hr />

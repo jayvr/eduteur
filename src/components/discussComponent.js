@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { Container, Dropdown, DropdownItem, DropdownToggle, DropdownMenu, Card, ListGroup, ListGroupItem, ListGroupItemHeading, ListGroupItemText, CardHeader, CardBody, CardFooter, Button, Form, CardTitle, FormGroup, Label, Input, CustomInput, Collapse } from "reactstrap"
+import { Container, Dropdown, DropdownItem, DropdownToggle, DropdownMenu, Card, ListGroup, ListGroupItem, ListGroupItemHeading, ListGroupItemText, CardHeader, CardBody, CardFooter, Button, Form, CardTitle, FormGroup, Label, Input, CustomInput, Collapse, Badge } from "reactstrap"
 import { connect } from 'react-redux';
 import { getFirestore } from 'redux-firestore';
 import { useFirebase, isLoaded } from 'react-redux-firebase';
 import AskQue from "./askQueComponent"
+import { FiChevronRight } from 'react-icons/fi';
 
 function Discuss(props) {
 
@@ -14,6 +15,8 @@ function Discuss(props) {
     const [selectedSubject, setSelectedSubject] = useState("Subjects");
     const [selectedSubjectData, setSelectedSubjectData] = useState({});
     const [discussPath, setDiscussPath] = useState("");
+    const [selectedQue, setSelectedQue] = useState("");
+    const [replies, setReplies] = useState("No answers available");
 
     const [subjectLoaded, setSubjectLoaded] = useState(false);
     const [showAsk, toggleAsk] = useState(false)
@@ -40,7 +43,7 @@ function Discuss(props) {
 
         return (
             <Dropdown isOpen={dropdownOpen} toggle={toggle}>
-                <DropdownToggle style={{ backgroundColor: "blueviolet", color: "white" }} caret>
+                <DropdownToggle caret>
                     {header}
                 </DropdownToggle>
                 <DropdownMenu >
@@ -122,38 +125,69 @@ function Discuss(props) {
         setSubjectLoaded(true);
     }, [])
 
+    const fetchReplies = (e) => {
+        console.log(discussItems[e.target.id]);
+        const path = `${props.profile.college}/${discussItems[e.target.id].sem}/${discussItems[e.target.id].branch}/discussion/${discussItems[e.target.id].subject}/${discussItems[e.target.id].id}/reply`;
+        const replies = "";
+        firestore.collection(path).get().then((qs) => {
+            qs.forEach((doc) => {
+                console.log(doc.data());
+                replies = replies + doc.data;
+            })
+        })
+        console.log(replies);
+        // console.log("replypath:", path);
+
+        // setReplies(discussItems[e.target.id].replies);
+    }
+
+    const addReply = (e) => {
+
+    }
+
 
     return (
         <>
             {
                 props.auth.uid ?
-                    <div className="Discuss" style={{ marginTop: "100px" }}>
+                    <div className="discuss" style={{ marginTop: "100px" }}>
                         <div className=" row offset-md-3">
-                            <div className="col-md-4">
+                            <div className="col-md-4 select-subject">
                                 <DropdownBtn header={selectedSubject} items={subjectItems} />
                             </div>
                         </div>
                         <br />
                         <hr />
-                        <div><h3>{selectedSubject === "Subjects" ? "" : selectedSubject}</h3></div>
-                        <div className="row justify-content-around">
+                        <div className="row justify-content-around discuss-ques-list">
                             <div className="col-md-6">
+                                <div className="discuss-selected-subject"><h2>{selectedSubject === "Subjects" ? "" : selectedSubject}</h2></div>
                                 <ListGroup>
                                     {
                                         discussItems &&
                                         discussItems.map((item, index) => (
                                             <ListGroupItem key={index}>
-                                                <ListGroupItemHeading>{item.title} ---{item.author}</ListGroupItemHeading>
+                                                {
+                                                    console.log("Index: " + index)
+                                                }
+                                                <ListGroupItemHeading>
+                                                    <p className="discuss-author">{item.author}</p>
+                                                    <p className="discuss-ques-module">
+                                                        <Badge>{item.moduleName}</Badge>
+                                                    </p>
+                                                </ListGroupItemHeading>
                                                 <ListGroupItemText>
-                                                    {item.dec}
+                                                    <p className="discuss-ques">Q.)  {item.title}</p>
                                                 </ListGroupItemText>
+                                                <div className="discuss-ques-ans">
+                                                    <Button id={index} value={index} onClick={fetchReplies}>Answer<FiChevronRight id={index} value={index} /></Button>
+                                                </div>
                                             </ListGroupItem>
                                         ))
                                     }
                                 </ListGroup>
                             </div>
-                            <div className="col-md-3">
-                                <Button onClick={() => toggleAsk(!showAsk)}>Ask Que</Button>
+                            <div className="col-md-3 ask-btn">
+                                <Button className="askques-toggler" onClick={() => toggleAsk(!showAsk)}>Ask Question</Button>
                                 {
                                     showAsk && subjectLoaded ?
                                         <AskQue subjects={subjectItems} />

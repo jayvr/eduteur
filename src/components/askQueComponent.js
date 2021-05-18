@@ -223,33 +223,31 @@ const AskQue = (props) => {
         <div>
             <Card className="askques-card">
                 <Form>
-                    <CardHeader className="d-flex justify-content-between">
-
+                    <CardHeader className="d-flex justify-content-center">
                         <h3 color="primary">Ask Question</h3>
-
                     </CardHeader>
                     <CardBody>
                         <FormGroup className=" row">
                             <ButtonGroup>
-                                <DropdownBtn header={selectedSubject} items={subjectItems} from="subject" required data-error="Subject is Required." />
+                                <DropdownBtn className="subject-toggle" header={selectedSubject} items={subjectItems} from="subject" required data-error="Subject is Required." />
                                 {"  "}
                                 <DropdownBtn header={selectedModule} items={moduleItems} from="module" required data-error="module is Required." />
                             </ButtonGroup>
                         </FormGroup>
                         <FormGroup className="askQues-input">
-                            <Input type="text" name="title" id="title" style={{ backgroundColor: "#fff" }} placeholder="Your question here" onChange={handleChange} bsSize="lg" />
+                            <Input type="text" name="title" id="title" placeholder="Your question here" onChange={handleChange} />
                         </FormGroup>
                         <FormGroup className="askQues-input">
                             <Input type="textarea" name="desc" id="desc" style={{ backgroundColor: "#fff" }} placeholder="Description of your Question" onChange={handleChange} />
                         </FormGroup>
                         {/* Add file attachment UI and backend */}
-                        <FormGroup>
-                            {/* <Label for="addresources" className="col-md-3" >Additional Resources</Label> */}
+                        {/* <FormGroup>
+                            {/* <Label for="addresources" className="col-md-3" >Additional Resources</Label> }
                             <CustomInput type="file" id="file" name="file" label="upload file" />
-                        </FormGroup>
+                        </FormGroup> */}
                     </CardBody>
                     <CardFooter className="d-flex justify-content-end">
-                        <Button className="btn-success" onClick={handleUpload}>Add</Button>
+                        <Button style={{ width: "100px" }} className="btn-success" onClick={handleUpload}>Add</Button>
                     </CardFooter>
 
                 </Form>

@@ -29,6 +29,7 @@ import "../App.css";
 function Upload(props) {
 	const [subjectItems, setSubjectItems] = useState(() => { const prof = props.profile.subjects; return prof });
 	const [moduleItems, setModuleItems] = useState([{ id: "0", name: "select the subject" }]);
+	const [latestItems, setLatestItems] = useState({ one: {}, two: {}, three: {} });
 	const [formData, setformData] = useState({
 		college: props.profile.college,
 		title: "",
@@ -123,9 +124,14 @@ function Upload(props) {
 
 		firestore.doc(path).get()
 			.then((doc) => {
-				if (doc.exists && doc.data().modules != null) {
-					setModuleItems(doc.data().modules);
-					console.log(moduleItems);
+				if (doc.exists) {
+					if (doc.data().latest != null) {
+						setLatestItems(doc.data().latest)
+					}
+					if (doc.data().modules != null) {
+						setModuleItems(doc.data().modules);
+						console.log(moduleItems);
+					}
 				} else {
 					setFirstModule(true);
 					console.log("No such doc or field exists!")
@@ -231,6 +237,7 @@ function Upload(props) {
 		const videoName = formData.title;
 		const fileName = videoName + " - Resources"
 
+
 		console.log(formData);
 		console.log("is first module: " + isFirstModule);
 		console.log(video);
@@ -275,20 +282,51 @@ function Upload(props) {
 					videoURL: VideoURL
 				})
 				.then((res) => {
+					console.log(res.id)
 					console.log('Document is created');
-					// update the MBR if new module is added
-					if (formData.isNewModule) {
-						console.log("Updating module MBR")
-						firestore.collection(`${path}`).doc(`${formData.subject}`).set({
-							modules: firebase.firestore.FieldValue.arrayUnion({
-								id: formData.moduleID,
-								name: formData.module
-							})
-						}, { merge: true }).then(() => {
-							console.log("Modules updated")
-							document.getElementById("upload-form").reset();
-						})
+					const currentData = {
+						title: formData.title,
+						dec: formData.desc,
+						branch: formData.branch,
+						createdAt: new Date(),
+						module: formData.moduleID,
+						moduleName: formData.module,
+						sem: formData.sem,
+						subject: formData.subject,
+						author: formData.author,
+						uid: formData.uid,
+						fileURL: FileURL,
+						videoURL: VideoURL,
+						docID: res.id,
 					}
+
+					const newLatest = {
+						one: currentData,
+						two: latestItems.one,
+						three: latestItems.two
+					}
+					firestore.collection(`${path}`).doc(`${formData.subject}`).set({
+						latest: newLatest,
+					}, { merge: true }).then(() => {
+						console.log("updated latest")
+						if (formData.isNewModule) {
+							console.log("Updating module MBR")
+							firestore.collection(`${path}`).doc(`${formData.subject}`).set({
+								latest: newLatest,
+								modules: firebase.firestore.FieldValue.arrayUnion({
+									id: formData.moduleID,
+									name: formData.module
+								})
+							}, { merge: true }).then(() => {
+								console.log("Modules updated")
+								document.getElementById("upload-form").reset();
+							})
+						}
+						document.getElementById("upload-form").reset();
+
+					})
+					// update the MBR if new module is added
+
 				}).catch((error) => {
 					console.log(error);
 				});
@@ -374,7 +412,7 @@ function Upload(props) {
 								<Label for="videofile" className="col-md-3">
 									Video File
 					</Label>
-								{linkToggle ?
+								{!linkToggle ?
 									< Input
 										className="col-md-6"
 										type="file"

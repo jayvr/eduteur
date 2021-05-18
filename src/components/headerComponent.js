@@ -174,13 +174,13 @@ function Header(props) {
                 <NavLink activeClassName="active-link" className="nav-links" to="/discuss"><GoCommentDiscussion id="nav-icons" />Discuss</NavLink>
               </NavItem>
             </Nav>
-            <div class="search">
+            {/* <div class="search">
               <div class="search_bar"></div>
               <input type="text" name="search here" class="search_placeholder" placeholder="Search here..." />
               <div class="search_icon_space">
                 <FiSearch />
               </div>
-            </div>
+            </div> */}
             <UserLogged logOut={props.logOut} profile={props.profile}></UserLogged>
           </Collapse>
         </> :
