@@ -17,6 +17,7 @@ body {
   -ms-text-size-adjust: 100%;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
 a {
@@ -318,6 +319,11 @@ a {
 }
 
 /* Nav Links */
+
+.nav-item {
+  margin-left: 20px;
+}
+
 .nav-links {
   padding: 10px;
   font-size: 18px;
@@ -690,24 +696,17 @@ a {
 /* Discuss Component */
 
 .askques-card {
+  border: 1px solid #111;
   border-radius: 10px;
 }
 
-.card-header:first-child {
-  border-radius: 10px;
-  border: 1px solid grey;
+.card-header {
 }
 
 .askques-card .card-body {
-  border-radius: 10px 10px 0 0;
-  border: 1px solid grey;
-  border-bottom: none;
 }
 
 .askques-card .card-footer {
-  border-radius: 0 0 10px 10px;
-  border: 1px solid grey;
-  border-top: none;
 }
 
 /* Upload Component */
@@ -898,32 +897,97 @@ a {
 }
 
 /* Subject Component */
+
+.breadcrumb {
+  text-transform: uppercase;
+  margin-left: 40px;
+  margin-top: 10px;
+  margin-bottom: -15px;
+}
+
 .module-list {
-  margin-left: 10px;
+  margin-top: 20px;
+  margin-left: 0;
 }
 
 .module-list .list-group-item {
   outline: none;
 }
 
-.module-list .list-group-item.active {
+.module-list .list-group:nth-child(1) {
+  border-radius: 10px;
+}
+
+.module-list .fetch-subs .list-group-item.active {
   background-color: #009e60;
+  border-color: #111;
 }
 
-.fetch-topics {
-  border-left: "1px solid #777";
-  margin-left: "30px";
-  padding-left: "70px";
-  border-right: "1px solid #777";
-  margin-right: "30px";
-  padding-right: "70px";
+.module-list .fetch-topics {
+  margin-left: 23%;
+  padding-left: 7%;
+  position: absolute;
+  border-left: 1px solid #111;
 }
 
-.help-block.with-errors {
-  color: red;
-  font-size: 12px;
-  padding-left: 30px;
+.module-list .fetch-topics .list-group {
+  width: 40em;
+  z-index: 1;
 }
-.help-block.with-errors ul {
-  margin-bottom: 0;
+
+.module-list .back-btn {
+  margin-left: 22%;
+  margin-top: -60px;
+  position: absolute;
+}
+
+.module-list .back-btn button:hover {
+  background-color: #222;
+  color: #fff;
+}
+
+.module-list .back-btn button:hover svg {
+  stroke: #fff;
+}
+
+.module-list .row button {
+  height: 40px;
+  align-items: center;
+  background-color: transparent;
+  color: #000;
+}
+
+.module-list .fetch-video {
+  width: 70%;
+  margin-left: 15%;
+  position: absolute;
+  padding-bottom: 100px;
+}
+
+.module-list .fetch-video .video-frame {
+  height: 400px;
+  width: 100%;
+}
+
+.module-list .fetch-video .video-title {
+  margin-left: 50px;
+  color: #0062e4;
+}
+
+.module-list .fetch-video h5 {
+  margin-left: 70px;
+  color: #457b9d;
+}
+
+.module-list .fetch-video .download-video {
+  background-color: #009e60;
+  color: #111;
+  margin-right: 70px;
+  font-weight: 500;
+}
+
+.module-list .fetch-video .no-video {
+  background-color: #e84545;
+  color: #fff;
+  cursor: not-allowed;
 }

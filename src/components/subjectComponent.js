@@ -7,6 +7,7 @@ import { connect, useSelector } from 'react-redux';
 import { Link, Route, useParams, useRouteMatch } from "react-router-dom";
 import Loading from "./LoadingComponent";
 import Carousel from "./carouselComponent"
+import { FiChevronLeft } from "react-icons/fi";
 
 
 
@@ -25,7 +26,7 @@ function useAsyncReference(value) {
 function Subject(props) {
 
     const [subjectItems, setSubjectItems] = useState([{ name: "Loading..." }]);
-    const [moduleItems, setModuleItems] = useState([{ name: "select subject " }]);
+    const [moduleItems, setModuleItems] = useState([{ name: "Select subject " }]);
     const [topicItems, setTopicItems] = useState([]);
     const ref = useRef(topicItems)
 
@@ -231,8 +232,6 @@ function Subject(props) {
         setTopicItems(data)
     }
 
-
-
     // display loding until user is profiled
     function ProfileIsLoaded({ children }) {
         const profile = useSelector(state => state.firebase.profile)
@@ -246,69 +245,76 @@ function Subject(props) {
 
     return (
         <ProfileIsLoaded>
-            {props.auth.uid?
-            <>
-            {/* <Container style={{ marginTop: "4em" }}> */}
-            <div style={{ marginTop: "4em", marginLeft: "2em", marginRight: "2em" }}>
-                <br />
-                <Row>
-                    <div className="col-12">
-                        <Carousel items={subjectItems} active={active} fetch={fetchModules} />
-                    </div>
-                </Row>
-                <hr />
-                <Row>
-                    <div ClassName="col">
-                        {selectedSubject}/{selectedModule}
-                    </div>
-                </Row>
-                <hr />
-                <Button onClick={() => toggleHide(!hideModule)}> M </Button>
-                <Row className="module-list">
-                    {hideModule ?
-                        <> </>
-                        :
-                        <ListGroup className="col-md-3">
-                            {moduleItems &&
-                                moduleItems.map((item, index) => (
-                                    <ListGroupItem tag="button" key={index} id={index} value={item.name} onClick={fetchTopics} active={selectedModule === item.name ? true : false} action > {item.name}</ListGroupItem>
-                                ))
+            {props.auth.uid ?
+                <>
+                    {/* <Container style={{ marginTop: "4em" }}> */}
+                    <div style={{ marginTop: "4em", marginLeft: "2em", marginRight: "2em" }}>
+                        <br />
+                        <Row>
+                            <div className="col-12">
+                                <Carousel items={subjectItems} active={active} fetch={fetchModules} />
+                            </div>
+                        </Row>
+                        <Row className="breadcrumb">
+                            <div className="col">
+                                {selectedSubject}/{selectedModule}
+                            </div>
+                        </Row>
+                        <hr />
+                        {/* <Button onClick={() => toggleHide(!hideModule)}> Modules </Button>
+                        <Row className="module-list">
+                            {hideModule ?
+                                <> </>
+                                :
+                                <ListGroup className="" style={{ width: "15em" }}>
+                                    {moduleItems &&
+                                        moduleItems.map((item, index) => (
+                                            <ListGroupItem tag="button" key={index} id={index} value={item.name} onClick={fetchTopics} active={selectedModule === item.name ? true : false} action > {item.name}</ListGroupItem>
+                                        ))
+                                    }
+                                </ListGroup>
+                            } */}
+                        <h3 style={{ color: "#0062e4" }}> Modules </h3>
+                        <Row className="module-list">
+                            <ListGroup className="fetch-subs" style={{ width: "15em" }}>
+                                {moduleItems &&
+                                    moduleItems.map((item, index) => (
+                                        <ListGroupItem tag="button" key={index} id={index} value={item.name} onClick={fetchTopics} active={selectedModule === item.name ? true : false} action > {item.name}</ListGroupItem>
+                                    ))
+                                }
+                            </ListGroup>
+                            {
+                                videoData ?
+                                    <>
+                                        <Row className="back-btn">
+                                            <Button onClick={() => {
+                                                setVideoData(null)
+                                                toggleHide(!hideModule)
+                                            }}> <FiChevronLeft stroke="#000" /> Back to Topics</Button>
+                                        </Row>
+                                        <Video subject={selectedSubject} module={selectedModule} topics={selectedTopic} path={topicPath} data={videoData} />
+                                    </>
+                                    :
+                                    <Container className="fetch-topics" >
+                                        <ListTopics subject={selectedSubject} module={selectedModule} topics={topicItems} />
+                                    </Container>
                             }
-                        </ListGroup>
-                    }
-                    {
-                        videoData ?
-                            <>
-                                <Row>
-                                    <Button onClick={() => {
-                                        setVideoData(null)
-                                        toggleHide(!hideModule)
-                                    }}> back </Button>
-                                </Row>
-                                <Video subject={selectedSubject} module={selectedModule} topics={selectedTopic} path={topicPath} data={videoData} />
-                            </>
-                            :
-                            <container className="fetch-topics" style={{ borderLeft: "1px solid #999", marginLeft: "30px", paddingLeft: "70px" }}>
-                                <ListTopics subject={selectedSubject} module={selectedModule} topics={topicItems} />
-                            </container>
-                    }
-                </Row>
-                {/* <Route path="video/:videoID">
+                        </Row>
+                        {/* <Route path="video/:videoID">
                     <Video subject={selectedSubject} module={selectedModule} topics={selectedTopic} path={topicPath} data={videoData} />
                 </Route> */}
-                {/* <Route path="video/:videoID">
+                        {/* <Route path="video/:videoID">
                     <Video topicItems={topicItems} />
                 </Route> */}
-                {/* <Route path="video/:videoID" render={(props) => <Video topicItems={topicItems} />} /> */}
-                {/* </Container> */}
-            </div>
-            <hr />
-        </>
-        :
-          <>
-          
-          {window.location.replace("http://localhost:3000/")}
-          </>  }
+                        {/* <Route path="video/:videoID" render={(props) => <Video topicItems={topicItems} />} /> */}
+                        {/* </Container> */}
+                    </div>
+                </>
+                :
+                <>
+
+                    {window.location.replace("http://localhost:3000/")}
+                </>}
         </ProfileIsLoaded >
     );
 }

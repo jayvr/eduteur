@@ -55,14 +55,14 @@ function Carousel(props) {
     // }
 
 
+    //onClick subject
     const setNewActive = (act) => {
         setActive(act)
-
+        console.log(act)
         if (act === 0) {
             setLeftEnd(true)
             setRightEnd(false)
         } else if (act === items.length - 1) {
-            console.log(act);
             setRightEnd(true)
             setLeftEnd(false)
         } else {
@@ -96,18 +96,21 @@ function Carousel(props) {
     }
 
     const moveLeft = () => {
-        var newActive = active
-        newActive--
-        if (newActive === 0) {
-            setLeftEnd(true)
+        var newActive = active;
+        newActive--;
+        const currentActive = newActive < 0 ? 0 : newActive;
+        if (currentActive <= 0) {
+            setLeftEnd(true);
         } else {
-            setLeftEnd(false)
-            setRightEnd(false)
+            setLeftEnd(false);
+            setRightEnd(false);
+            console.log(currentActive)
         }
-        const currentActive = newActive < 0 ? 0 : newActive
-        setActive(currentActive)
-        setDirection("left")
-        props.fetch(currentActive)
+
+
+        setActive(currentActive);
+        setDirection("left");
+        props.fetch(currentActive);
 
     }
 
