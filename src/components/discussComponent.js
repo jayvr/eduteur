@@ -5,6 +5,7 @@ import { getFirestore } from 'redux-firestore';
 import { useFirebase, isLoaded } from 'react-redux-firebase';
 import AskQue from "./askQueComponent"
 import { FiChevronRight } from 'react-icons/fi';
+import { Accordion } from 'react-bootstrap';
 
 function Discuss(props) {
 
@@ -125,20 +126,18 @@ function Discuss(props) {
         setSubjectLoaded(true);
     }, [])
 
-    const fetchReplies = (e) => {
+    async function fetchReplies(e) {
         console.log(discussItems[e.target.id]);
         const path = `${props.profile.college}/${discussItems[e.target.id].sem}/${discussItems[e.target.id].branch}/discussion/${discussItems[e.target.id].subject}/${discussItems[e.target.id].id}/reply`;
-        const replies = "";
-        firestore.collection(path).get().then((qs) => {
-            qs.forEach((doc) => {
-                console.log(doc.data());
-                replies = replies + doc.data;
-            })
+        let repliesData = [];
+        const replyRef = firestore.collection(path);
+        const replysnapshot = await replyRef.get();
+        replysnapshot.forEach((doc) => {
+            // console.log("replypath:", doc.data());
+            // console.log(replies);
+            repliesData.push({ ...doc.data(), id: doc.id });
         })
-        console.log(replies);
-        // console.log("replypath:", path);
-
-        // setReplies(discussItems[e.target.id].replies);
+        setReplies(repliesData);
     }
 
     const addReply = (e) => {
@@ -179,7 +178,19 @@ function Discuss(props) {
                                                     <p className="discuss-ques">Q.)  {item.title}</p>
                                                 </ListGroupItemText>
                                                 <div className="discuss-ques-ans">
+                                                <Accordion >
+                                                    <Accordion.Toggle as={Button} variant="link" eventKey="0">
                                                     <Button id={index} value={index} onClick={fetchReplies}>Answer<FiChevronRight id={index} value={index} /></Button>
+                                                    </Accordion.Toggle>
+                                                    <Accordion.Collapse eventKey="0">
+                                                        <>
+                                                        {
+                                                        //    code to display the answers from "replies"
+                                                        }
+                                                        </>
+                                                    </Accordion.Collapse>
+                                                </Accordion>
+                                                    {/* {console.log(replies)} */}
                                                 </div>
                                             </ListGroupItem>
                                         ))
